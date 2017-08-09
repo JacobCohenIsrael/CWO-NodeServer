@@ -3,9 +3,51 @@ var server = require('http').Server(app);
 var io = require('socket.io')(server);
 var idCounter = 2;
 var players = {};
+let newPlayer = {
+    id : idCounter,
+	firstName : "Smith",
+	currentNodeName : "TestStar",
+	isLanded : true,
+	homePlanetId : "TestStar",
+	credits : 10,
+	activeShipIndex : 0,
+	sessionId : "3adasd2ds-63af-408b-9ce2-931631c0bbed",
+	ships : [
+		{
+			id : 1,
+			currentHullAmount: 1,
+			currentShieldAmount : 1,
+			currentEnergyAmount : 1,
+			shipCargo : {},
+			shipParts : [
+				{
+					"name": "BasicEngine",
+					"partStats" : {
+						"hull": 50,
+						"jumpDistance" : 10
+					}
+				},
+				{
+					"name": "BasicCargo",
+					"partStats" : {
+						"cargoCapacity": 50
+					}
+				},
+				{
+					"name": "BasicGenerator",
+					"partStats" : {
+						"energyRegen": 2,
+						"energyCapacity": 10
+					}
+				}
+			]
+		}
+	]
+};
 var playersDb = {
     "1ec6c968-63af-408b-9ce2-931631c0bbed" : {
         id : 1,
+		firstName : "Jacob",
         currentNodeName : "TestStar",
         isLanded : true,
         homePlanetId : "TestStar",
@@ -81,46 +123,7 @@ io.on('connection', function(socket) {
         console.log("Player with session " + data.player.sessionId + " is trying to login", data.player);
         if (!playersDb.hasOwnProperty(data.player.sessionId))
         {
-            playersDb[data.player.sessionId] = {
-                id : idCounter,
-				currentNodeName : "TestStar",
-				isLanded : true,
-				homePlanetId : "TestStar",
-				credits : 10,
-				activeShipIndex : 0,
-				sessionId : "1ec6c968-63af-408b-9ce2-931631c0bbed",
-				ships : [
-					{
-						id : 1,
-						currentHullAmount: 1,
-						currentShieldAmount : 1,
-						currentEnergyAmount : 1,
-						shipCargo : {},
-						shipParts : [
-							{
-								"name": "BasicEngine",
-								"partStats" : {
-									"hull": 50,
-									"jumpDistance" : 10
-								}
-							},
-							{
-								"name": "BasicCargo",
-								"partStats" : {
-									"cargoCapacity": 50
-								}
-							},
-							{
-								"name": "BasicGenerator",
-								"partStats" : {
-									"energyRegen": 2,
-									"energyCapacity": 10
-								}
-							}
-						]
-					}
-				]
-            };
+            playersDb[data.player.sessionId] = newPlayer;
             idCounter++;
         }
         var player = playersDb[data.player.sessionId];
@@ -159,8 +162,10 @@ io.on('connection', function(socket) {
         socket.emit('playerLeftLounge', {'success' : true, player : players[data.id] });
     });
 
-	socket.on('loungeChatSent', (data) => {
+	socket.on('chatSent', (data) => {
         console.log("Player " + data.player.id + " Sent Chat", data);
+		console.log("Sending message " + data.message.message + " to room '" + data.message.roomKey + data.player.currentNodeName + "' with sender Id " + data.player.id + " with name '" + data.player.firstName + "'");
+		io.to(data.message.roomKey + data.player.currentNodeName).emit('chatMessageReceived', { senderId: data.player.id, senderName: data.player.firstName, receivedMessage: data.message.message });
     });
 
     socket.on('playerBuyResource', function(data) {
