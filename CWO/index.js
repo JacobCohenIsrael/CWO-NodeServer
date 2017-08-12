@@ -152,16 +152,19 @@ io.on('connection', function(socket) {
         //console.log("Landing player " + data.id + " On Star");
         players[data.id].isLanded = true;
 		socket.leave('node-' + players[data.id].currentNodeName);
+		io.to('node-' + data.player.currentNodeName).emit('shipLeftNode', { playerId : data.player.id });	
         socket.emit('playerLanded', {'success' : true, player : players[data.id] });
+		//console.log(nodes);
+		delete nodes[players[data.id].currentNodeName].ships[data.id];
     });
 
     socket.on('departPlayerFromStar', function(data) {
         //console.log("Departing player " + data.player.id + " From Star");
         players[data.player.id].isLanded = false;
-		socket.join('node-' + data.player.currentNodeName);
-        socket.emit('playerDeparted', {'success' : true, player : players[data.player.id] });
+		io.to('node-' + data.player.currentNodeName).emit('shipEnteredNode', { ship : data.player.ships[data.player.activeShipIndex], playerId : data.player.id });		
+        socket.emit('playerDeparted', {'success' : true, player : players[data.player.id], node: nodes[data.player.currentNodeName] });	
 		nodes[data.player.currentNodeName].ships[data.player.id] = data.player.ships[data.player.activeShipIndex];
-		io.to('node-' + data.player.currentNodeName).emit('shipEnteredNode', { node : nodes[data.player.currentNodeName] });
+		socket.join('node-' + data.player.currentNodeName);
     });
 
 	socket.on('playerEnteredLounge', function(data) {
