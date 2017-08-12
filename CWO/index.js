@@ -152,7 +152,7 @@ io.on('connection', function(socket) {
         //console.log("Landing player " + data.id + " On Star");
         players[data.id].isLanded = true;
 		socket.leave('node-' + players[data.id].currentNodeName);
-		io.to('node-' + data.player.currentNodeName).emit('shipLeftNode', { playerId : data.player.id });	
+		io.to('node-' + players[data.id].currentNodeName).emit('shipLeftNode', { playerId : data.id });	
         socket.emit('playerLanded', {'success' : true, player : players[data.id] });
 		//console.log(nodes);
 		delete nodes[players[data.id].currentNodeName].ships[data.id];
@@ -243,8 +243,15 @@ io.on('connection', function(socket) {
         console.log("Jumping player " + data.player.id + " From Star " + data.player.currentNodeName + " To Star " + data.star.name);
         if (players[data.player.id].currentNodeName != data.star.name )
         {
-			socket.leave('node-' + data.player.currentNodeName);
-            players[data.player.id].currentNodeName = data.star.name;
+			let jumpingPlayer = data.player;
+			socket.leave('node-' + jumpingPlayer.currentNodeName);
+			io.to('node-' + jumpingPlayer.currentNodeName).emit('shipLeftNode', { playerId : jumpingPlayer.id });
+			delete nodes[jumpingPlayer.currentNodeName].ships[data.player.id];
+            players[jumpingPlayer.id].currentNodeName = jumpingPlayer.currentNodeName =  data.star.name;
+			io.to('node-' + jumpingPlayer.currentNodeName).emit('shipEnteredNode', { ship : jumpingPlayer.ships[jumpingPlayer.activeShipIndex], playerId : jumpingPlayer.id });	
+			socket.emit('playerDeparted', {'success' : true, player : jumpingPlayer, node: nodes[jumpingPlayer.currentNodeName] });	
+			nodes[jumpingPlayer.currentNodeName].ships[jumpingPlayer.id] = jumpingPlayer.ships[jumpingPlayer.activeShipIndex];
+			socket.join('node-' + jumpingPlayer.currentNodeName);
         }
         else
         {
