@@ -18,7 +18,9 @@ let newPlayer = {
 			id : 1,
 			currentHullAmount: 1,
 			currentShieldAmount : 1,
-			currentEnergyAmount : 1,
+            currentEnergyAmount : 1,
+            shipClass: "jumper",
+            shipType: "Ancients",
 			shipCargo : {},
 			shipParts : [
 				{
@@ -61,6 +63,8 @@ var playersDb = {
                 currentHullAmount: 1,
                 currentShieldAmount : 1,
                 currentEnergyAmount : 1,
+                shipClass: "jumper",
+                shipType: "Ancients",
                 shipCargo : {},
 				shipParts : [
 					{
