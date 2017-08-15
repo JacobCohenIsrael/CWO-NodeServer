@@ -1,10 +1,14 @@
-var app = require('express')();
-var server = require('http').Server(app);
-var io = require('socket.io')(server);
-var idCounter = 2;
-var players = {};
-let nodes = {};
-let newPlayer = {
+const app = require('express')();
+const server = require('http').Server(app);
+const io = require('socket.io')(server);
+
+const playersDb = require('./tempDB/playerDb.json');
+const nodeDb = require('./tempDB/nodeDb.json');
+const players = {};
+const nodes = {};
+
+let idCounter = 2;
+const newPlayer = {
     id : idCounter,
 	firstName : "Smith",
 	currentNodeName : "TestStar",
@@ -47,84 +51,6 @@ let newPlayer = {
 		}
 	]
 };
-var playersDb = {
-    "1ec6c968-63af-408b-9ce2-931631c0bbed" : {
-        id : 1,
-		firstName : "Jacob",
-        currentNodeName : "TestStar",
-        isLanded : true,
-        homePlanetId : "TestStar",
-        credits : 10,
-        activeShipIndex : 0,
-        sessionId : "1ec6c968-63af-408b-9ce2-931631c0bbed",
-        ships : [
-            {
-                id : 1,
-                currentHullAmount: 1,
-                currentShieldAmount : 1,
-                currentEnergyAmount : 1,
-                shipClass: "jumper",
-                shipType: "Ancients",
-                shipCargo : {},
-				shipParts : [
-					{
-						"name": "BasicEngine",
-						"partStats" : {
-							"hull": 50,
-							"jumpDistance" : 10
-						}
-					},
-					{
-						"name": "BasicCargo",
-						"partStats" : {
-							"cargoCapacity": 50
-						}
-					},
-					{
-						"name": "BasicGenerator",
-						"partStats" : {
-							"energyRegen": 2,
-							"energyCapacity": 10
-						}
-					}
-				]
-            }
-        ]
-    }
-};
-
-var nodeDb = {
-    "TestStar" : {
-        "name" : "TestStar",
-        "coordX" : -5.0,
-        "coordY" : 0.0,
-        "resourceList" : 
-		{
-			"Holmium" : { "name" : "Holmium", "amount" : 50, "buyPrice" : 5, "sellPrice" : 4 },
-			"Cerium" : { "name" : "Cerium", "amount" : 25, "buyPrice" : 15, "sellPrice" : 8 }
-		}
-    },
-    "TestStar2" : {
-        "name" : "TestStar2",
-        "coordX" : 5.0,
-        "coordY" : 2.0,
-        "resourceList" : 
-		{
-			"Holmium" : { "name" : "Holmium", "amount" : 50, "buyPrice" : 5, "sellPrice" : 4 },
-			"Cerium" : { "name" : "Cerium", "amount" : 5, "buyPrice" : 45, "sellPrice" : 35 }
-		}
-    },
-    "TestStar3" : {
-        "name" : "TestStar3",
-        "coordX" : 0.0,
-        "coordY" : 1.0,
-        "resourceList" : 
-		{
-			"Holmium" : { "name" : "Holmium", "amount" : 40, "buyPrice" : 15, "sellPrice" : 10 },
-			"Cerium" : { "name" : "Cerium", "amount" : 15, "buyPrice" : 25, "sellPrice" : 15 }
-		}
-    }
-}
 
 //setInterval(logStuff, 5000);
 server.listen(3000);
