@@ -7,7 +7,7 @@
     "homePlanetId" : "TestStar",
     "credits" : 10,
     "activeShipIndex" : 0,
-    "sessionId" : "1ec6c968-63af-408b-9ce2-931631c0bbed",
+    "token" : "1ec6c968-63af-408b-9ce2-931631c0bbed",
     "ships" : [
       {
         "id" : 1,

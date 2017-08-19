@@ -3,12 +3,12 @@ const nodeDb = require('../../tempDB/nodeDb.json');
 
 module.exports = (socket, idCounter, players, newPlayer) => {
     function login(data) {
-        if (!playersDb.hasOwnProperty(data.player.sessionId))
+        if (!playersDb.hasOwnProperty(data.player.token))
             {
-                playersDb[data.player.sessionId] = newPlayer;
+                playersDb[data.player.token] = newPlayer;
                 idCounter++;
             }
-            const player = playersDb[data.player.sessionId];
+            const player = playersDb[data.player.token];
             player.ships[0].cachedShipStats = {
                 "hull" : 50,
                 "cargoCapacity": 50,

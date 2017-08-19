@@ -2,11 +2,11 @@ const app = require('express')();
 const server = require('http').Server(app);
 const io = require('socket.io')(server);
 require('./config/app.configurations')(app);
+
 const playersDb = require('./tempDB/playerDb.json');
 const nodeDb = require('./tempDB/nodeDb.json');
 const players = {};
 const nodes = {};
-
 let idCounter = 2;
 const newPlayer = {
     id : idCounter,
@@ -16,7 +16,7 @@ const newPlayer = {
 	homePlanetId : "TestStar",
 	credits : 10,
 	activeShipIndex : 0,
-	sessionId : "3adasd2ds-63af-408b-9ce2-931631c0bbed",
+	token : "3adasd2ds-63af-408b-9ce2-931631c0bbed",
 	ships : [
 		{
 			id : 1,
@@ -51,20 +51,23 @@ const newPlayer = {
 		}
 	]
 };
-initNodes();
 
+initNodes();
+require('./routes/routeManager')(app);
 // let eventMethods = require('./socket/connection/socket.connection');
 io.on('connection', function(socket) {
     //console.log('Connectin Established');
     // eventMethods = eventMethods(socket,idCounter, players, newPlayer);
     socket.emit('connectionResponse', {'success' : true });
     socket.on('login', function login(data) {
-        if (!playersDb.hasOwnProperty(data.player.sessionId))
+        const token = data.request.token;
+ 
+        if (!playersDb.hasOwnProperty(token))
             {
-                playersDb[data.player.sessionId] = newPlayer;
+                playersDb[token] = newPlayer;
                 idCounter++;
             }
-            const player = playersDb[data.player.sessionId];
+            const player = playersDb[token];
             player.ships[0].cachedShipStats = {
                 "hull" : 50,
                 "cargoCapacity": 50,
@@ -73,7 +76,10 @@ io.on('connection', function(socket) {
                 "energyCapacity": 10
             };
             players[player.id] = player;
-            socket.emit('loginResponse', {'success' : true, player : player, starsList : nodeDb });
+            socket.emit('loginResponse', {
+                 player : player,
+                 node: nodes[player.currentNodeName]
+                });
     });
 
     socket.on('landPlayerOnStar', function(data) {
@@ -99,6 +105,19 @@ io.on('connection', function(socket) {
         //console.log("Player " + data.player.id + " Entered Lounge");
 		socket.join('lounge' + data.player.currentNodeName);
         socket.emit('playerEnteredLounge', {'success' : true, player : players[data.id] });
+    });
+
+	socket.on('playerEnterMarket', function(data) {
+        //console.log("Player " + data.player.id + " Entered Lounge");
+        console.log('asd');
+        const player = data.player;
+        validatePlayerRequest(player);
+        console.log(nodes[player.currentNodeName].star.market.resourceList);
+        socket.emit('playerEnteredMarket', {
+            player : players[player.id],
+            ResourceSlotList : nodes[player.currentNodeName].star.market.resourceList
+        });
+        socket.join('market' + data.player.currentNodeName);
     });
 
 	socket.on('playerLeftLounge', function(data) {
@@ -192,7 +211,13 @@ io.on('connection', function(socket) {
         console.log("Test: ", data);
     });
 
+    function validatePlayerRequest(player) {
+        if(players[player.id].token === player.token){
+            socket.emit('invalidToken', {});
+        }
+    }
 });
+
 
 function logStuff()
 {
@@ -215,12 +240,10 @@ function initNodes()
 {
 	for (let nodeName in nodeDb) {
 		let node = nodeDb[nodeName];
-		nodes[nodeName] = {
-			ships : {}
-		}
-	}
+        nodes[nodeName] = node;
+    }
 }
 
 server.listen(app.get('port'), function () {
-  console.log('Express server listening on port ' + app.get('port'))
-})
+  console.log('Express server listening on port ' + app.get('port'));
+});

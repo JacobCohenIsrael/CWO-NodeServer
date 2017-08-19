@@ -3,10 +3,14 @@
     "name" : "TestStar",
     "coordX" : -5.0,
     "coordY" : 0.0,
-    "resourceList" :
-    {
-      "Holmium" : { "name" : "Holmium", "amount" : 50, "buyPrice" : 5, "sellPrice" : 4 },
-      "Cerium" : { "name" : "Cerium", "amount" : 25, "buyPrice" : 15, "sellPrice" : 8 }
+    "ships" : {},
+    "star" : {
+      "market" : {
+        "resourceList" : {
+          "Holmium" : { "name" : "Holmium", "amount" : 50, "buyPrice" : 5, "sellPrice" : 4 },
+          "Cerium" : { "name" : "Cerium", "amount" : 25, "buyPrice" : 15, "sellPrice" : 8 }
+        }
+      }
     }
   },
   "TestStar2" : {
