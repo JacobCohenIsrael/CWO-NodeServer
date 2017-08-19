@@ -109,13 +109,11 @@ io.on('connection', function(socket) {
 
 	socket.on('playerEnterMarket', function(data) {
         //console.log("Player " + data.player.id + " Entered Lounge");
-        console.log('asd');
         const player = data.player;
         validatePlayerRequest(player);
-        console.log(nodes[player.currentNodeName].star.market.resourceList);
         socket.emit('playerEnteredMarket', {
             player : players[player.id],
-            ResourceSlotList : nodes[player.currentNodeName].star.market.resourceList
+            resourceSlotList : nodes[player.currentNodeName].star.market.resourceList
         });
         socket.join('market' + data.player.currentNodeName);
     });
@@ -133,36 +131,41 @@ io.on('connection', function(socket) {
     });
 
     socket.on('playerBuyResource', function(data) {
-        console.log("Player is buying resource ", data);
-        if (!nodeDb[data.player.currentNodeName].resourceList.hasOwnProperty([data.resource.name])) {
+       // console.log("Player is buying resource ", data);
+	   const player = data.player;
+	   validatePlayerRequest(player);
+		const resourceList = nodes[player.currentNodeName].star.market.resourceList;
+
+        if (!resourceList.hasOwnProperty(data.resource.name)) {
             //console.log("This star does not contain this resource");
             return;
         }
-        if (nodeDb[data.player.currentNodeName].resourceList[data.resource.name].amount < data.resource.amount) {
+        if (resourceList[data.resource.name].amount < data.resource.amount) {
             //console.log("This star does not have this much resources to sell");
             return;
         }
-        if (players[data.player.id].credits < nodeDb[data.player.currentNodeName].resourceList[data.resource.name].buyPrice) {
+        if (players[data.player.id].credits < resourceList[data.resource.name].buyPrice) {
             //console.log("Player does not have enough credits to purchase this resource");
             return;
         }
 
-        nodeDb[data.player.currentNodeName].resourceList[data.resource.name].amount -= data.resource.amount;
-        players[data.player.id].credits -= nodeDb[data.player.currentNodeName].resourceList[data.resource.name].buyPrice;
+        resourceList[data.resource.name].amount -= data.resource.amount;
+        players[data.player.id].credits -= resourceList[data.resource.name].buyPrice;
         if (!players[data.player.id].ships[players[data.player.id].activeShipIndex].shipCargo.hasOwnProperty(data.resource.name)) {
             players[data.player.id].ships[players[data.player.id].activeShipIndex].shipCargo[data.resource.name] = 0;
         }
         players[data.player.id].ships[players[data.player.id].activeShipIndex].shipCargo[data.resource.name] += data.resource.amount;
         socket.emit('playerBoughtResource', {'success' : true, player : players[data.player.id]});
-        io.sockets.emit('updateResourceAmount', {
+        io.to('market'+data.player.currentNodeName).emit('updateResourceAmount', {
             'success' : true,
             starName: data.player.currentNodeName,
             resourceName: data.resource.name,
-            newAmount : nodeDb[data.player.currentNodeName].resourceList[data.resource.name].amount });
+            newAmount : nodes[data.player.currentNodeName].star.market.resourceList[data.resource.name].amount });
     });
 
     socket.on('playerSellResource', function(data) {
-        console.log("Player is selling resource ", data);
+        //console.log("Player is selling resource ", data);
+		const player = data.player;
         if (!players[data.player.id].ships[players[data.player.id].activeShipIndex].shipCargo.hasOwnProperty([data.resource.name])) {
             //console.log("Player does not have this resource");
             return;
@@ -172,16 +175,16 @@ io.on('connection', function(socket) {
             //console.log("Player Cargo: ", players[data.player.id].ships[players[data.player.id].activeShipIndex].shipCargo);
             return;
         }
-
-        nodeDb[data.player.currentNodeName].resourceList[data.resource.name].amount += data.resource.amount;
-        players[data.player.id].credits += nodeDb[data.player.currentNodeName].resourceList[data.resource.name].sellPrice;
+		const resourceList = nodes[player.currentNodeName].star.market.resourceList;
+        resourceList[data.resource.name].amount += data.resource.amount;
+        players[data.player.id].credits += resourceList[data.resource.name].sellPrice;
         players[data.player.id].ships[players[data.player.id].activeShipIndex].shipCargo[data.resource.name] -= data.resource.amount;
         socket.emit('playerSoldResource', {'success' : true, player : players[data.player.id]});
-        io.sockets.emit('updateResourceAmount', {
+        io.to('market'+data.player.currentNodeName).emit('updateResourceAmount', {
             'success' : true,
             starName: data.player.currentNodeName,
             resourceName: data.resource.name,
-            newAmount : nodeDb[data.player.currentNodeName].resourceList[data.resource.name].amount
+            newAmount : resourceList[data.resource.name].amount
         });
     });
 
