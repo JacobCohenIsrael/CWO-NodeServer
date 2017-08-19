@@ -1,7 +1,7 @@
 const app = require('express')();
 const server = require('http').Server(app);
 const io = require('socket.io')(server);
-
+require('./config/app.configurations')(app);
 const playersDb = require('./tempDB/playerDb.json');
 const nodeDb = require('./tempDB/nodeDb.json');
 const players = {};
@@ -51,31 +51,29 @@ const newPlayer = {
 		}
 	]
 };
-
-//setInterval(logStuff, 5000);
-server.listen(3000);
-console.log('CWO Server is listening on port 3000');
 initNodes();
+
+// let eventMethods = require('./socket/connection/socket.connection');
 io.on('connection', function(socket) {
     //console.log('Connectin Established');
+    // eventMethods = eventMethods(socket,idCounter, players, newPlayer);
     socket.emit('connectionResponse', {'success' : true });
-    socket.on('login', function(data) {
-        //console.log("Player with session " + data.player.sessionId + " is trying to login", data.player);
+    socket.on('login', function login(data) {
         if (!playersDb.hasOwnProperty(data.player.sessionId))
-        {
-            playersDb[data.player.sessionId] = newPlayer;
-            idCounter++;
-        }
-        var player = playersDb[data.player.sessionId];
-		player.ships[0].cachedShipStats = {
-			"hull" : 50,
-			"cargoCapacity": 50,
-			"jumpDistance": 10,
-			"energyRegen": 2,
-			"energyCapacity": 10
-		};
-        players[player.id] = player;
-        socket.emit('loginResponse', {'success' : true, player : player, starsList : nodeDb });
+            {
+                playersDb[data.player.sessionId] = newPlayer;
+                idCounter++;
+            }
+            const player = playersDb[data.player.sessionId];
+            player.ships[0].cachedShipStats = {
+                "hull" : 50,
+                "cargoCapacity": 50,
+                "jumpDistance": 10,
+                "energyRegen": 2,
+                "energyCapacity": 10
+            };
+            players[player.id] = player;
+            socket.emit('loginResponse', {'success' : true, player : player, starsList : nodeDb });
     });
 
     socket.on('landPlayerOnStar', function(data) {
@@ -222,3 +220,7 @@ function initNodes()
 		}
 	}
 }
+
+server.listen(app.get('port'), function () {
+  console.log('Express server listening on port ' + app.get('port'))
+})
