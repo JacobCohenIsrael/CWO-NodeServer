@@ -4,12 +4,11 @@
     "coordX" : -5.0,
     "coordY" : 0.0,
     "ships" : {},
-    "star" : {
-      "market" : {
-        "resourceList" : {
-          "Holmium" : { "name" : "Holmium", "amount" : 50, "buyPrice" : 5, "sellPrice" : 4 },
-          "Cerium" : { "name" : "Cerium", "amount" : 25, "buyPrice" : 15, "sellPrice" : 8 }
-        }
+    "star" : {},
+    "market" : {
+      "resourceList" : {
+        "Holmium" : { "name" : "Holmium", "amount" : 50, "buyPrice" : 5, "sellPrice" : 4 },
+        "Cerium" : { "name" : "Cerium", "amount" : 25, "buyPrice" : 15, "sellPrice" : 8 }
       }
     }
   },
@@ -17,20 +16,26 @@
     "name" : "TestStar2",
     "coordX" : 5.0,
     "coordY" : 2.0,
-    "resourceList" :
-    {
-      "Holmium" : { "name" : "Holmium", "amount" : 50, "buyPrice" : 5, "sellPrice" : 4 },
-      "Cerium" : { "name" : "Cerium", "amount" : 5, "buyPrice" : 45, "sellPrice" : 35 }
+    "ships" : {},
+    "market": {
+      "resourceList" :
+      {
+        "Holmium" : { "name" : "Holmium", "amount" : 50, "buyPrice" : 5, "sellPrice" : 4 },
+        "Cerium" : { "name" : "Cerium", "amount" : 5, "buyPrice" : 45, "sellPrice" : 35 }
+      }
     }
   },
   "TestStar3" : {
     "name" : "TestStar3",
     "coordX" : 0.0,
     "coordY" : 1.0,
-    "resourceList" :
-    {
-      "Holmium" : { "name" : "Holmium", "amount" : 40, "buyPrice" : 15, "sellPrice" : 10 },
-      "Cerium" : { "name" : "Cerium", "amount" : 15, "buyPrice" : 25, "sellPrice" : 15 }
+    "ships" : {},
+    "market": {
+      "resourceList" :
+      {
+        "Holmium" : { "name" : "Holmium", "amount" : 40, "buyPrice" : 15, "sellPrice" : 10 },
+        "Cerium" : { "name" : "Cerium", "amount" : 15, "buyPrice" : 25, "sellPrice" : 15 }
+      }
     }
   }
 }

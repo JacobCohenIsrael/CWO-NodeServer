@@ -4,7 +4,7 @@
     "firstName" : "Jacob",
     "currentNodeName" : "TestStar",
     "isLanded" : true,
-    "homePlanetId" : "TestStar",
+    "homePlanetName" : "TestStar",
     "credits" : 10,
     "activeShipIndex" : 0,
     "token" : "1ec6c968-63af-408b-9ce2-931631c0bbed",

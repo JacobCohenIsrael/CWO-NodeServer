@@ -7,13 +7,14 @@ const playersDb = require('./tempDB/playerDb.json');
 const nodeDb = require('./tempDB/nodeDb.json');
 const players = {};
 const nodes = {};
+const nodesCoords = {};
 let idCounter = 2;
 const newPlayer = {
     id : idCounter,
 	firstName : "Smith",
 	currentNodeName : "TestStar",
 	isLanded : true,
-	homePlanetId : "TestStar",
+	homePlanetName : "TestStar",
 	credits : 10,
 	activeShipIndex : 0,
 	token : "3adasd2ds-63af-408b-9ce2-931631c0bbed",
@@ -63,33 +64,36 @@ io.on('connection', function(socket) {
         const token = data.request.token;
  
         if (!playersDb.hasOwnProperty(token))
-            {
-                playersDb[token] = newPlayer;
-                idCounter++;
-            }
-            const player = playersDb[token];
-            player.ships[0].cachedShipStats = {
-                "hull" : 50,
-                "cargoCapacity": 50,
-                "jumpDistance": 10,
-                "energyRegen": 2,
-                "energyCapacity": 10
-            };
-            players[player.id] = player;
-            socket.emit('loginResponse', {
-                 player : player,
-                 node: nodes[player.currentNodeName]
-                });
+        {
+            playersDb[token] = newPlayer;
+            idCounter++;
+        }
+        const player = playersDb[token];
+        player.ships[0].cachedShipStats = {
+            "hull" : 50,
+            "cargoCapacity": 50,
+            "jumpDistance": 10,
+            "energyRegen": 2,
+            "energyCapacity": 10
+        };
+
+        players[player.id] = player;
+        socket.emit('loginResponse', {
+                player : player,
+                node: nodes[player.currentNodeName],
+                nodesCoords : nodesCoords
+        });
     });
 
     socket.on('landPlayerOnStar', function(data) {
         //console.log("Landing player " + data.id + " On Star");
-        players[data.id].isLanded = true;
-		socket.leave('node-' + players[data.id].currentNodeName);
-		io.to('node-' + players[data.id].currentNodeName).emit('shipLeftNode', { playerId : data.id });	
-        socket.emit('playerLanded', {'success' : true, player : players[data.id] });
-		//console.log(nodes);
-		delete nodes[players[data.id].currentNodeName].ships[data.id];
+        validatePlayerRequest(data.player);
+        const player = players[data.player.id];
+        players[player.id].isLanded = true;
+		socket.leave('node-' + player.currentNodeName);
+		io.to('node-' + player.currentNodeName).emit('shipLeftNode', { playerId : player.id });	
+        socket.emit('playerLanded', { player : player });
+		delete nodes[player.currentNodeName].ships[player.id];
     });
 
     socket.on('departPlayerFromStar', function(data) {
@@ -113,7 +117,7 @@ io.on('connection', function(socket) {
         validatePlayerRequest(player);
         socket.emit('playerEnteredMarket', {
             player : players[player.id],
-            resourceSlotList : nodes[player.currentNodeName].star.market.resourceList
+            resourceSlotList : nodes[player.currentNodeName].market.resourceList
         });
         socket.join('market' + data.player.currentNodeName);
     });
@@ -131,21 +135,21 @@ io.on('connection', function(socket) {
     });
 
     socket.on('playerBuyResource', function(data) {
-       // console.log("Player is buying resource ", data);
+       console.log("Player is buying resource ", data);
 	   const player = data.player;
 	   validatePlayerRequest(player);
-		const resourceList = nodes[player.currentNodeName].star.market.resourceList;
+		const resourceList = nodes[player.currentNodeName].market.resourceList;
 
         if (!resourceList.hasOwnProperty(data.resource.name)) {
-            //console.log("This star does not contain this resource");
+            console.log("This star does not contain this resource");
             return;
         }
         if (resourceList[data.resource.name].amount < data.resource.amount) {
-            //console.log("This star does not have this much resources to sell");
+            console.log("This star does not have this much resources to sell");
             return;
         }
         if (players[data.player.id].credits < resourceList[data.resource.name].buyPrice) {
-            //console.log("Player does not have enough credits to purchase this resource");
+            console.log("Player does not have enough credits to purchase this resource");
             return;
         }
 
@@ -160,7 +164,7 @@ io.on('connection', function(socket) {
             'success' : true,
             starName: data.player.currentNodeName,
             resourceName: data.resource.name,
-            newAmount : nodes[data.player.currentNodeName].star.market.resourceList[data.resource.name].amount });
+            newAmount : nodes[data.player.currentNodeName].market.resourceList[data.resource.name].amount });
     });
 
     socket.on('playerSellResource', function(data) {
@@ -175,7 +179,7 @@ io.on('connection', function(socket) {
             //console.log("Player Cargo: ", players[data.player.id].ships[players[data.player.id].activeShipIndex].shipCargo);
             return;
         }
-		const resourceList = nodes[player.currentNodeName].star.market.resourceList;
+		const resourceList = nodes[player.currentNodeName].market.resourceList;
         resourceList[data.resource.name].amount += data.resource.amount;
         players[data.player.id].credits += resourceList[data.resource.name].sellPrice;
         players[data.player.id].ships[players[data.player.id].activeShipIndex].shipCargo[data.resource.name] -= data.resource.amount;
@@ -188,18 +192,18 @@ io.on('connection', function(socket) {
         });
     });
 
-    socket.on('jumpPlayerToStar', function(data) {
-        console.log(data);
-        console.log("Jumping player " + data.player.id + " From Star " + data.player.currentNodeName + " To Star " + data.star.name);
-        if (players[data.player.id].currentNodeName != data.star.name )
+    socket.on('jumpPlayerToNode', function(data) {
+        //console.log("Jumping player " + data.player.id + " From Node " + data.player.currentNodeName + " To Node " + data.node.name);
+        validatePlayerRequest(data.player);
+        const jumpingPlayer = players[data.player.id];
+        if (jumpingPlayer.currentNodeName != data.node.name )
         {
-			let jumpingPlayer = data.player;
 			socket.leave('node-' + jumpingPlayer.currentNodeName);
 			io.to('node-' + jumpingPlayer.currentNodeName).emit('shipLeftNode', { playerId : jumpingPlayer.id });
 			delete nodes[jumpingPlayer.currentNodeName].ships[data.player.id];
-            players[jumpingPlayer.id].currentNodeName = jumpingPlayer.currentNodeName =  data.star.name;
+            players[jumpingPlayer.id].currentNodeName = jumpingPlayer.currentNodeName =  data.node.name;
 			io.to('node-' + jumpingPlayer.currentNodeName).emit('shipEnteredNode', { ship : jumpingPlayer.ships[jumpingPlayer.activeShipIndex], playerId : jumpingPlayer.id });	
-			socket.emit('playerDeparted', {'success' : true, player : jumpingPlayer, node: nodes[jumpingPlayer.currentNodeName] });	
+            socket.emit('playerJumpedToNode', {player : jumpingPlayer, node: nodes[jumpingPlayer.currentNodeName] });	
 			nodes[jumpingPlayer.currentNodeName].ships[jumpingPlayer.id] = jumpingPlayer.ships[jumpingPlayer.activeShipIndex];
 			socket.join('node-' + jumpingPlayer.currentNodeName);
         }
@@ -207,7 +211,7 @@ io.on('connection', function(socket) {
         {
             console.log("WTF player is trying to jump to the star he's at?");
         }
-        socket.emit('playerJumped', {'success' : true, player : players[data.player.id] });
+        socket.emit('playerJumped', {player : players[data.player.id] });
     });
 
     socket.on('test', function(data) {
@@ -244,9 +248,15 @@ function initNodes()
 	for (let nodeName in nodeDb) {
 		let node = nodeDb[nodeName];
         nodes[nodeName] = node;
+        nodesCoords[nodeName] = {
+            name : node.name,
+            coordX : node.coordX,
+            coordY : node.coordY,
+            star : node.star
+        }
     }
 }
 
 server.listen(app.get('port'), function () {
-  console.log('Express server listening on port ' + app.get('port'));
+  console.log('Server listening on port ' + app.get('port'));
 });
