@@ -252,7 +252,9 @@ function initNodes()
             name : node.name,
             coordX : node.coordX,
             coordY : node.coordY,
-            star : node.star
+        }
+        if (node.hasOwnProperty('star')) {
+            nodesCoords[nodeName].star = node.star;
         }
     }
 }

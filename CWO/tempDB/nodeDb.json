@@ -14,9 +14,10 @@
   },
   "TestStar2" : {
     "name" : "TestStar2",
-    "coordX" : 5.0,
-    "coordY" : 2.0,
+    "coordX" : 0.0,
+    "coordY" : 5.0,
     "ships" : {},
+    "star" : {},
     "market": {
       "resourceList" :
       {
@@ -27,9 +28,10 @@
   },
   "TestStar3" : {
     "name" : "TestStar3",
-    "coordX" : 0.0,
-    "coordY" : 1.0,
+    "coordX" : 5.0,
+    "coordY" : 0.0,
     "ships" : {},
+    "star" : {},
     "market": {
       "resourceList" :
       {
@@ -37,5 +39,95 @@
         "Cerium" : { "name" : "Cerium", "amount" : 15, "buyPrice" : 25, "sellPrice" : 15 }
       }
     }
+  },
+  "NX010" : {
+    "name" : "NX010",
+    "coordX" : -1.0,
+    "coordY" : 0.0,
+    "ships" : {}
+  },
+  "NX030" : {
+    "name" : "NX030",
+    "coordX" : -3.0,
+    "coordY" : 0.0,
+    "ships" : {}
+  },
+  "PX010" : {
+    "name" : "PX010",
+    "coordX" : 1.0,
+    "coordY" : 0.0,
+    "ships" : {}
+  },
+  "PX030" : {
+    "name" : "PX030",
+    "coordX" : 3.0,
+    "coordY" : 0.0,
+    "ships" : {}
+  },
+  "NX040PY010" : {
+    "name" : "NX040PY010",
+    "coordX" : -4.0,
+    "coordY" : 1.0,
+    "ships" : {}
+  },
+  "NX030PY020" : {
+    "name" : "NX030PY020",
+    "coordX" : -3.0,
+    "coordY" : 2.0,
+    "ships" : {}
+  },
+  "NX020PY030" : {
+    "name" : "NX020PY030",
+    "coordX" : -2.0,
+    "coordY" : 3.0,
+    "ships" : {}
+  },
+  "NX010PY040" : {
+    "name" : "NX010PY040",
+    "coordX" : -1.0,
+    "coordY" : 4.0,
+    "ships" : {}
+  },
+  "PX040PY010" : {
+    "name" : "PX040PY010",
+    "coordX" : 4.0,
+    "coordY" : 1.0,
+    "ships" : {}
+  },
+  "PX030PY020" : {
+    "name" : "PX030PY020",
+    "coordX" : 3.0,
+    "coordY" : 2.0,
+    "ships" : {}
+  },
+  "PX020PY030" : {
+    "name" : "PX020PY030",
+    "coordX" : 2.0,
+    "coordY" : 3.0,
+    "ships" : {}
+  },
+  "PX010PY040" : {
+    "name" : "PX010PY040",
+    "coordX" : 1.0,
+    "coordY" : 4.0,
+    "ships" : {}
+  },
+  "NY020" : {
+    "name" : "NY020",
+    "coordX" : 0.0,
+    "coordY" : -2.0,
+    "ships" : {}
+  },
+  "PX040PY035" : {
+    "name" : "PX040PY035",
+    "coordX" : 4.0,
+    "coordY" : 3.5,
+    "ships" : {}
+  },
+  "NX040PY035" : {
+    "name" : "NX040PY035",
+    "coordX" : -4.0,
+    "coordY" : 3.5,
+    "ships" : {}
   }
 }
