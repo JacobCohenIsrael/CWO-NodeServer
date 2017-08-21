@@ -2,9 +2,9 @@
   "1ec6c968-63af-408b-9ce2-931631c0bbed" : {
     "id" : 1,
     "firstName" : "Jacob",
-    "currentNodeName" : "TestStar",
+    "currentNodeName" : "Earth",
     "isLanded" : true,
-    "homePlanetName" : "TestStar",
+    "homePlanetName" : "Earth",
     "credits" : 10,
     "activeShipIndex" : 0,
     "token" : "1ec6c968-63af-408b-9ce2-931631c0bbed",

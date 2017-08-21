@@ -12,9 +12,9 @@ let idCounter = 2;
 const newPlayer = {
     id : idCounter,
 	firstName : "Smith",
-	currentNodeName : "TestStar",
+	currentNodeName : "Earth",
 	isLanded : true,
-	homePlanetName : "TestStar",
+	homePlanetName : "Earth",
 	credits : 10,
 	activeShipIndex : 0,
 	token : "3adasd2ds-63af-408b-9ce2-931631c0bbed",
@@ -252,11 +252,13 @@ function initNodes()
             name : node.name,
             coordX : node.coordX,
             coordY : node.coordY,
+			sprite : node.sprite,
         }
         if (node.hasOwnProperty('star')) {
             nodesCoords[nodeName].star = node.star;
         }
     }
+	//console.log(nodes);
 }
 
 server.listen(app.get('port'), function () {
