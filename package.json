@@ -1,18 +1,21 @@
 {
-  "name": "cwo",
-  "version": "1.0.0",
-  "description": "Casino Worlds Online",
-  "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "author": "Jacob Cohen",
-  "license": "MIT",
-  "dependencies": {
-    "bluebird": "^3.5.0",
-    "body-parser": "^1.17.2",
-    "express": "^4.14.1",
-    "morgan": "^1.8.2",
-    "socket.io": "^1.7.2"
-  }
+	"name": "cwo",
+	"version": "1.0.0",
+	"description": "Casino Worlds Online",
+	"main": "index.js",
+	"scripts": {
+		"start": "node index.js"
+	}
+	"author": "Jacob Cohen",
+	"license": "MIT",
+	"dependencies": {
+		"bluebird": "^3.5.0",
+		"body-parser": "^1.17.2",
+		"express": "^4.14.1",
+		"morgan": "^1.8.2",
+		"socket.io": "^1.7.2"
+	},
+	"engines": {
+		"node": "8.2.1"
+	},
 }
