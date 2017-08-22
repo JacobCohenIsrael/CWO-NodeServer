@@ -252,7 +252,8 @@ function initNodes()
             name : node.name,
             coordX : node.coordX,
             coordY : node.coordY,
-			sprite : node.sprite,
+            sprite : node.sprite,
+            connectedNodes : node.connectedNodes
         }
         if (node.hasOwnProperty('star')) {
             nodesCoords[nodeName].star = node.star;
