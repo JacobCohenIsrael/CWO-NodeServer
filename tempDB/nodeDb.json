@@ -12,7 +12,14 @@
         "Cerium" : { "name" : "Cerium", "amount" : 25, "buyPrice" : 15, "sellPrice" : 8 }
       }
     },
-    "connectedNodes" : ["NX040PY010", "NX030"]
+	"isSafeZone" : true,
+    "connectedNodes" : 
+	{
+		"NX040PY010" :	{ "jumpDistance" : 20 }, 
+		"NX030" :		{ "jumpDistance" : 10 }, 
+		"NX040PY035" :	{ "jumpDistance" : 10 }
+	}
+
   },
   "Earth" : {
     "name" : "Earth",

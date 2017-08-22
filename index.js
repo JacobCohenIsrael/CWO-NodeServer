@@ -59,6 +59,7 @@ require('./routes/routeManager')(app);
 io.on('connection', function(socket) {
     //console.log('Connectin Established');
     // eventMethods = eventMethods(socket,idCounter, players, newPlayer);
+
     socket.emit('connectionResponse', {'success' : true });
     socket.on('login', function login(data) {
         const token = data.request.token;
