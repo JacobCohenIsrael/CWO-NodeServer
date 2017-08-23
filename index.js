@@ -57,7 +57,7 @@ initNodes();
 require('./routes/routeManager')(app);
 // let eventMethods = require('./socket/connection/socket.connection');
 io.on('connection', function(socket) {
-    //console.log('Connectin Established');
+    console.log('Connectin Established');
     // eventMethods = eventMethods(socket,idCounter, players, newPlayer);
 
     socket.emit('connectionResponse', {'success' : true });
