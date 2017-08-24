@@ -18,7 +18,7 @@ const newPlayer = {
     currentNodeName: "Earth",
     isLanded: true,
     homePlanetName: "Earth",
-    credits: 10,
+    credits: 1000,
     activeShipIndex: 0,
     token: null,
     ships: [
