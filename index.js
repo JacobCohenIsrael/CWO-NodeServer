@@ -1,6 +1,8 @@
-const app = require('express')();
+const express = require('express');
+const app = express();
 const server = require('http').Server(app);
 const io = require('socket.io')(server);
+var path = require('path');
 require('./config/app.configurations')(app);
 
 const playersDb = require('./tempDB/playerDb.json');
@@ -18,7 +20,7 @@ const newPlayer = {
     homePlanetName: "Earth",
     credits: 10,
     activeShipIndex: 0,
-    token: "3adasd2ds-63af-408b-9ce2-931631c0bbed",
+    token: null,
     ships: [
         {
             id: 1,
@@ -56,20 +58,24 @@ const newPlayer = {
 
 initNodes();
 require('./routes/routeManager')(app);
-// let eventMethods = require('./socket/connection/socket.connection');
+app.get('/', function(req, res) {
+    res.sendFile(path.join(__dirname + '/index.html'));
+});
+app.use(express.static('./'));
 io.on('connection', function (socket) {
-    console.log('Connectin Established', socket.id);
-    // eventMethods = eventMethods(socket,idCounter, players, newPlayer);
-
+    console.log('Connectin Established');
     socket.emit('connectionResponse', { 'success': true });
-    socket.on('login', function login(data) {
+    socket.on('login', function (data) {
         const token = data.request.token;
-
         if (!playersDb.hasOwnProperty(token)) {
+            console.log("Token is not detected", token);
+            console.log("Creating New player with player ID", idCounter);
+            newPlayer.token = data.request.token;
             playersDb[token] = newPlayer;
             idCounter++;
         }
         const player = playersDb[token];
+        console.log("Player Logged In", player);
         connectionsId[socket.id] = player.id;
         player.ships[0].cachedShipStats = {
             "hull": 50,
