@@ -2,7 +2,7 @@ const express = require('express');
 const app = express();
 const server = require('http').Server(app);
 const io = require('socket.io')(server);
-var path = require('path');
+const path = require('path');
 require('./config/app.configurations')(app);
 
 const playersDb = require('./tempDB/playerDb.json');
@@ -11,9 +11,9 @@ const players = {};
 const connectionsId = {};
 const nodes = {};
 const nodesCoords = {};
-let idCounter = 2;
+var idCounter = 2;
 const newPlayer = {
-    id: idCounter,
+    id: null,
     firstName: "Smith",
     currentNodeName: "Earth",
     isLanded: true,
@@ -70,6 +70,7 @@ io.on('connection', function (socket) {
         if (!playersDb.hasOwnProperty(token)) {
             console.log("Token is not detected", token);
             console.log("Creating New player with player ID", idCounter);
+            newPlayer.id = idCounter;
             newPlayer.token = data.request.token;
             playersDb[token] = newPlayer;
             idCounter++;
@@ -237,9 +238,10 @@ io.on('connection', function (socket) {
         const currentNode = nodes[player.currentNodeName];
         if (currentNode.hasOwnProperty('star') && !player.isLanded) {
             player.isLanded = true;
+            io.to('node-' + player.currentNodeName).emit('shipLeftNode', { playerId: player.id });
+            delete player[player.id];
         }
         playersDb[player.id] = player;
-        delete player[player.id];
         delete connectionsId[socket.id];
     });
 
