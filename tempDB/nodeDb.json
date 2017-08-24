@@ -95,7 +95,11 @@
       }
     },
     "isSafeZone": true,
-    "connectedNodes": {}
+    "connectedNodes": {
+      "PX040PY010" : {
+        "jumpDistance": 10
+      }
+    }
   },
   "NX010": {
     "name": "NX010",
@@ -194,7 +198,14 @@
     "coordX": 4.0,
     "coordY": 1.0,
     "ships": {},
-    "connectedNodes": {}
+    "connectedNodes": {
+      "PX030PY020": {
+        "jumpDistance": 10
+      },
+      "PX040PY010": {
+        "Siera": 10
+      }
+    }
   },
   "PX030PY020": {
     "name": "PX030PY020",
@@ -202,7 +213,14 @@
     "coordX": 3.0,
     "coordY": 2.0,
     "ships": {},
-    "connectedNodes": {}
+    "connectedNodes": {
+      "PX020PY030": {
+        "jumpDistance": 10
+      },
+      "PX040PY010": {
+        "jumpDistance": 10
+      }
+    }
   },
   "PX020PY030": {
     "name": "PX020PY030",
@@ -210,7 +228,14 @@
     "coordX": 2.0,
     "coordY": 3.0,
     "ships": {},
-    "connectedNodes": {}
+    "connectedNodes": {
+      "PX010PY040": {
+        "jumpDistance": 10
+      },
+      "PX030PY020": {
+        "jumpDistance": 10
+      }
+    }
   },
   "PX010PY040": {
     "name": "PX010PY040",
@@ -218,7 +243,14 @@
     "coordX": 1.0,
     "coordY": 4.0,
     "ships": {},
-    "connectedNodes": {}
+    "connectedNodes": {
+      "Earth": {
+        "jumpDistance": 10
+      },
+      "PX020PY030": {
+        "jumpDistance": 10
+      }
+    }
   },
   "NY020": {
     "name": "NY020",
