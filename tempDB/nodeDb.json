@@ -1,159 +1,247 @@
 {
-  "Nova" : {
-    "name" : "Nova",
-    "coordX" : -5.0,
-    "coordY" : 0.0,
-    "ships" : {},
-	  "sprite": "star-nova",
-    "star" : {},
-    "market" : {
-      "resourceList" : {
-        "Holmium" : { "name" : "Holmium", "amount" : 50, "buyPrice" : 5, "sellPrice" : 4 },
-        "Cerium" : { "name" : "Cerium", "amount" : 25, "buyPrice" : 15, "sellPrice" : 8 }
+  "Nova": {
+    "name": "Nova",
+    "coordX": -5.0,
+    "coordY": 0.0,
+    "ships": {},
+    "sprite": "star-nova",
+    "star": {},
+    "market": {
+      "resourceList": {
+        "Holmium": {
+          "name": "Holmium",
+          "amount": 50,
+          "buyPrice": 5,
+          "sellPrice": 4
+        },
+        "Cerium": {
+          "name": "Cerium",
+          "amount": 25,
+          "buyPrice": 15,
+          "sellPrice": 8
+        }
       }
     },
-	"isSafeZone" : true,
-    "connectedNodes" : 
-	{
-		"NX040PY010" :	{ "jumpDistance" : 20 }, 
-		"NX030" :		{ "jumpDistance" : 10 }, 
-		"NX040PY035" :	{ "jumpDistance" : 10 }
-	}
-
-  },
-  "Earth" : {
-    "name" : "Earth",
-    "coordX" : 0.0,
-    "coordY" : 5.0,
-    "ships" : {},
-	  "sprite" : "star-earth",
-    "star" : {},
-    "market": {
-      "resourceList" :
-      {
-        "Holmium" : { "name" : "Holmium", "amount" : 50, "buyPrice" : 5, "sellPrice" : 4 },
-        "Cerium" : { "name" : "Cerium", "amount" : 5, "buyPrice" : 45, "sellPrice" : 35 }
+    "isSafeZone": true,
+    "connectedNodes": {
+      "NX040PY010": {
+        "jumpDistance": 10
+      },
+      "NX030": {
+        "jumpDistance": 10
+      },
+      "NX040PY035": {
+        "jumpDistance": 20
       }
     }
   },
-  "Siera" : {
-    "name" : "Siera",
-    "coordX" : 5.0,
-    "coordY" : 0.0,
-    "ships" : {},
-	  "sprite" : "star-siera",
-    "star" : {},
+  "Earth": {
+    "name": "Earth",
+    "coordX": 0.0,
+    "coordY": 5.0,
+    "ships": {},
+    "sprite": "star-earth",
+    "star": {},
     "market": {
-      "resourceList" :
-      {
-        "Holmium" : { "name" : "Holmium", "amount" : 40, "buyPrice" : 15, "sellPrice" : 10 },
-        "Cerium" : { "name" : "Cerium", "amount" : 15, "buyPrice" : 25, "sellPrice" : 15 }
+      "resourceList": {
+        "Holmium": {
+          "name": "Holmium",
+          "amount": 50,
+          "buyPrice": 5,
+          "sellPrice": 4
+        },
+        "Cerium": {
+          "name": "Cerium",
+          "amount": 5,
+          "buyPrice": 45,
+          "sellPrice": 35
+        }
+      }
+    },
+    "isSafeZone": true,
+    "connectedNodes": {
+      "NX010PY040": {
+        "jumpDistance": 10
+      },
+      "PX010PY040": {
+        "jumpDistance": 10
+      },
+      "NX040PY035": {
+        "jumpDistance": 20
       }
     }
   },
-  "NX010" : {
-    "name" : "NX010",
-	  "sprite" : "empty",
-    "coordX" : -1.0,
-    "coordY" : 0.0,
-    "ships" : {}
+  "Siera": {
+    "name": "Siera",
+    "coordX": 5.0,
+    "coordY": 0.0,
+    "ships": {},
+    "sprite": "star-siera",
+    "star": {},
+    "market": {
+      "resourceList": {
+        "Holmium": {
+          "name": "Holmium",
+          "amount": 40,
+          "buyPrice": 15,
+          "sellPrice": 10
+        },
+        "Cerium": {
+          "name": "Cerium",
+          "amount": 15,
+          "buyPrice": 25,
+          "sellPrice": 15
+        }
+      }
+    },
+    "isSafeZone": true,
+    "connectedNodes": {}
   },
-  "NX030" : {
-    "name" : "NX030",
-	  "sprite" : "empty",
-    "coordX" : -3.0,
-    "coordY" : 0.0,
-    "ships" : {}
+  "NX010": {
+    "name": "NX010",
+    "sprite": "empty",
+    "coordX": -1.0,
+    "coordY": 0.0,
+    "ships": {},
+    "connectedNodes": {}
   },
-  "PX010" : {
-    "name" : "PX010",
-	  "sprite" : "empty",
-    "coordX" : 1.0,
-    "coordY" : 0.0,
-    "ships" : {}
+  "NX030": {
+    "name": "NX030",
+    "sprite": "empty",
+    "coordX": -3.0,
+    "coordY": 0.0,
+    "ships": {}
   },
-  "PX030" : {
-    "name" : "PX030",
-	  "sprite" : "empty",
-    "coordX" : 3.0,
-    "coordY" : 0.0,
-    "ships" : {}
+  "PX010": {
+    "name": "PX010",
+    "sprite": "empty",
+    "coordX": 1.0,
+    "coordY": 0.0,
+    "ships": {},
+    "connectedNodes": {}
   },
-  "NX040PY010" : {
-    "name" : "NX040PY010",
-	  "sprite" : "empty",
-    "coordX" : -4.0,
-    "coordY" : 1.0,
-    "ships" : {}
+  "PX030": {
+    "name": "PX030",
+    "sprite": "empty",
+    "coordX": 3.0,
+    "coordY": 0.0,
+    "ships": {},
+    "connectedNodes": {}
   },
-  "NX030PY020" : {
-    "name" : "NX030PY020",
-	"sprite" : "empty",
-    "coordX" : -3.0,
-    "coordY" : 2.0,
-    "ships" : {}
+  "NX040PY010": {
+    "name": "NX040PY010",
+    "sprite": "empty",
+    "coordX": -4.0,
+    "coordY": 1.0,
+    "ships": {},
+    "connectedNodes": {
+      "Nova": {
+        "jumpDistance": 10
+      },
+      "NX030PY020": {
+        "jumpDistance": 10
+      }
+    }
   },
-  "NX020PY030" : {
-    "name" : "NX020PY030",
-	"sprite" : "empty",
-    "coordX" : -2.0,
-    "coordY" : 3.0,
-    "ships" : {}
+  "NX030PY020": {
+    "name": "NX030PY020",
+    "sprite": "empty",
+    "coordX": -3.0,
+    "coordY": 2.0,
+    "ships": {},
+    "connectedNodes": {
+      "NX020PY030": {
+        "jumpDistance": 10
+      },
+      "NX040PY010": {
+        "jumpDistance": 10
+      }
+    }
   },
-  "NX010PY040" : {
-    "name" : "NX010PY040",
-	"sprite" : "empty",
-    "coordX" : -1.0,
-    "coordY" : 4.0,
-    "ships" : {}
+  "NX020PY030": {
+    "name": "NX020PY030",
+    "sprite": "empty",
+    "coordX": -2.0,
+    "coordY": 3.0,
+    "ships": {},
+    "connectedNodes": {
+      "NX010PY040": {
+        "jumpDistance": 10
+      },
+      "NX030PY020": {
+        "jumpDistance": 10
+      }
+    }
   },
-  "PX040PY010" : {
-    "name" : "PX040PY010",
-	"sprite" : "empty",
-    "coordX" : 4.0,
-    "coordY" : 1.0,
-    "ships" : {}
+  "NX010PY040": {
+    "name": "NX010PY040",
+    "sprite": "empty",
+    "coordX": -1.0,
+    "coordY": 4.0,
+    "ships": {},
+    "connectedNodes": {
+      "Earth": {
+        "jumpDistance": 10
+      },
+      "NX020PY030": {
+        "jumpDistance": 10
+      }
+    }
   },
-  "PX030PY020" : {
-    "name" : "PX030PY020",
-	  "sprite" : "empty",
-    "coordX" : 3.0,
-    "coordY" : 2.0,
-    "ships" : {}
+  "PX040PY010": {
+    "name": "PX040PY010",
+    "sprite": "empty",
+    "coordX": 4.0,
+    "coordY": 1.0,
+    "ships": {},
+    "connectedNodes": {}
   },
-  "PX020PY030" : {
-    "name" : "PX020PY030",
-	  "sprite" : "empty",
-    "coordX" : 2.0,
-    "coordY" : 3.0,
-    "ships" : {}
+  "PX030PY020": {
+    "name": "PX030PY020",
+    "sprite": "empty",
+    "coordX": 3.0,
+    "coordY": 2.0,
+    "ships": {},
+    "connectedNodes": {}
   },
-  "PX010PY040" : {
-    "name" : "PX010PY040",
-	  "sprite" : "empty",
-    "coordX" : 1.0,
-    "coordY" : 4.0,
-    "ships" : {}
+  "PX020PY030": {
+    "name": "PX020PY030",
+    "sprite": "empty",
+    "coordX": 2.0,
+    "coordY": 3.0,
+    "ships": {},
+    "connectedNodes": {}
   },
-  "NY020" : {
-    "name" : "NY020",
-	  "sprite" : "empty",
-    "coordX" : 0.0,
-    "coordY" : -2.0,
-    "ships" : {}
+  "PX010PY040": {
+    "name": "PX010PY040",
+    "sprite": "empty",
+    "coordX": 1.0,
+    "coordY": 4.0,
+    "ships": {},
+    "connectedNodes": {}
   },
-  "PX040PY035" : {
-    "name" : "PX040PY035",
-	  "sprite" : "empty",
-    "coordX" : 4.0,
-    "coordY" : 3.5,
-    "ships" : {}
+  "NY020": {
+    "name": "NY020",
+    "sprite": "empty",
+    "coordX": 0.0,
+    "coordY": -2.0,
+    "ships": {},
+    "connectedNodes": {}
   },
-  "NX040PY035" : {
-    "name" : "NX040PY035",
-	  "sprite" : "empty",
-    "coordX" : -4.0,
-    "coordY" : 3.5,
-    "ships" : {}
+  "PX040PY035": {
+    "name": "PX040PY035",
+    "sprite": "empty",
+    "coordX": 4.0,
+    "coordY": 3.5,
+    "ships": {},
+    "connectedNodes": {}
+  },
+  "NX040PY035": {
+    "name": "NX040PY035",
+    "sprite": "empty",
+    "coordX": -4.0,
+    "coordY": 3.5,
+    "ships": {},
+    "connectedNodes": {}
   }
 }
