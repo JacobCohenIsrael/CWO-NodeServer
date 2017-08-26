@@ -204,7 +204,6 @@ io.on('connection', function (socket) {
         }
         let shipJumpRange = jumpingPlayer.ships[jumpingPlayer.activeShipIndex].cachedShipStats.jumpRange;
         let destinationNodeJumpRange = currentNode.connectedNodes[destinationNode.name].jumpRange;
-		console.log(shipJumpRange, destinationNodeJumpRange);
         if (shipJumpRange < destinationNodeJumpRange) {
 			sendNotification("Engines are not strong enough to jump there!");
 			return
