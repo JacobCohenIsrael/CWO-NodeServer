@@ -27,6 +27,7 @@ const newPlayer = {
             currentHullAmount: 1,
             currentShieldAmount: 1,
             currentEnergyAmount: 1,
+			currentCargoHold: 0,
             shipClass: "jumper",
             shipType: "Ancients",
             shipCargo: {},
@@ -35,7 +36,7 @@ const newPlayer = {
                     "name": "BasicEngine",
                     "partStats": {
                         "hull": 50,
-                        "jumpDistance": 10
+                        "jumpRange": 20
                     }
                 },
                 {
@@ -72,6 +73,7 @@ io.on('connection', function (socket) {
             console.log("Creating New player with player ID", idCounter);
             newPlayer.id = idCounter;
             newPlayer.token = data.request.token;
+			newPlayer.firstName = "Guest" + idCounter;
             playersDb[token] = newPlayer;
             idCounter++;
         }
@@ -81,7 +83,7 @@ io.on('connection', function (socket) {
         player.ships[0].cachedShipStats = {
             "hull": 50,
             "cargoCapacity": 50,
-            "jumpDistance": 10,
+            "jumpRange": 20,
             "energyRegen": 2,
             "energyCapacity": 10
         };
@@ -150,15 +152,11 @@ io.on('connection', function (socket) {
         const resourceList = nodes[player.currentNodeName].market.resourceList;
 
         if (!resourceList.hasOwnProperty(data.resource.name)) {
-            console.log("This star does not contain this resource");
-            return;
-        }
-        if (resourceList[data.resource.name].amount < data.resource.amount) {
-            console.log("This star does not have this much resources to sell");
+			sendNotification("This star does not contain this resource");
             return;
         }
         if (players[data.player.id].credits < resourceList[data.resource.name].buyPrice) {
-            console.log("Player does not have enough credits to purchase this resource");
+            sendNotification("Player does not have enough credits to purchase this resource");
             return;
         }
 
@@ -168,69 +166,57 @@ io.on('connection', function (socket) {
             players[data.player.id].ships[players[data.player.id].activeShipIndex].shipCargo[data.resource.name] = 0;
         }
         players[data.player.id].ships[players[data.player.id].activeShipIndex].shipCargo[data.resource.name] += data.resource.amount;
+		nodes[player.currentNodeName].market.resourceList[data.resource.name].boughtAmount += data.resource.amount;
         socket.emit('playerBoughtResource', { 'success': true, player: players[data.player.id] });
-        io.to('market' + data.player.currentNodeName).emit('updateResourceAmount', {
-            'success': true,
-            starName: data.player.currentNodeName,
-            resourceName: data.resource.name,
-            newAmount: nodes[data.player.currentNodeName].market.resourceList[data.resource.name].amount
-        });
     });
 
     socket.on('playerSellResource', function (data) {
-        //console.log("Player is selling resource ", data);
         const player = data.player;
         if (!players[data.player.id].ships[players[data.player.id].activeShipIndex].shipCargo.hasOwnProperty([data.resource.name])) {
-            //console.log("Player does not have this resource");
+            sendNotification("Player does not have this resource");
             return;
         }
         if (!players[data.player.id].ships[players[data.player.id].activeShipIndex].shipCargo[data.resource.name] >= data.resource.amount) {
-            //console.log("Player does not have that amount of resource to sell");
-            //console.log("Player Cargo: ", players[data.player.id].ships[players[data.player.id].activeShipIndex].shipCargo);
+            sendNotification("Player does not have that amount of resource to sell");
             return;
         }
         const resourceList = nodes[player.currentNodeName].market.resourceList;
         resourceList[data.resource.name].amount += data.resource.amount;
         players[data.player.id].credits += resourceList[data.resource.name].sellPrice;
         players[data.player.id].ships[players[data.player.id].activeShipIndex].shipCargo[data.resource.name] -= data.resource.amount;
+		nodes[player.currentNodeName].market.resourceList[data.resource.name].soldAmount += data.resource.amount;
         socket.emit('playerSoldResource', { 'success': true, player: players[data.player.id] });
-        io.to('market' + data.player.currentNodeName).emit('updateResourceAmount', {
-            'success': true,
-            starName: data.player.currentNodeName,
-            resourceName: data.resource.name,
-            newAmount: resourceList[data.resource.name].amount
-        });
     });
 
     socket.on('jumpPlayerToNode', function (data) {
         //console.log("Jumping player " + data.player.id + " From Node " + data.player.currentNodeName + " To Node " + data.node.name);
         validatePlayerRequest(data.player);
         const jumpingPlayer = players[data.player.id];
-        if (jumpingPlayer.currentNodeName != data.node.name) {
-            const currentNode = nodes[jumpingPlayer.currentNodeName];
-            const destinationNode = nodes[data.node.name];
-            if (!currentNode.connectedNodes.hasOwnProperty(destinationNode.name)) {
-                socket.emit('notificationReceived', { notificationText: "Nodes are not connected!" });
-            } else {
-                let shipJumpDistance = jumpingPlayer.ships[jumpingPlayer.activeShipIndex].cachedShipStats.jumpDistance;
-                let destinationNodeJumpDistance = currentNode.connectedNodes[destinationNode.name].jumpDistance;
-                if (shipJumpDistance >= destinationNodeJumpDistance) {
-                    socket.leave('node-' + jumpingPlayer.currentNodeName);
-                    io.to('node-' + jumpingPlayer.currentNodeName).emit('shipLeftNode', { playerId: jumpingPlayer.id });
-                    delete nodes[jumpingPlayer.currentNodeName].ships[data.player.id];
-                    players[jumpingPlayer.id].currentNodeName = jumpingPlayer.currentNodeName = data.node.name;
-                    io.to('node-' + jumpingPlayer.currentNodeName).emit('shipEnteredNode', { ship: jumpingPlayer.ships[jumpingPlayer.activeShipIndex], playerId: jumpingPlayer.id });
-                    socket.emit('playerJumpedToNode', { player: jumpingPlayer, node: nodes[jumpingPlayer.currentNodeName] });
-                    nodes[jumpingPlayer.currentNodeName].ships[jumpingPlayer.id] = jumpingPlayer.ships[jumpingPlayer.activeShipIndex];
-                    socket.join('node-' + jumpingPlayer.currentNodeName);
-                } else {
-                    socket.emit('notificationReceived', { notificationText: "Engines are not strong enough to jump there!" });
-                }
-            }
+        if (jumpingPlayer.currentNodeName == data.node.name) {
+			console.log("WTF player is trying to jump to the star he's at?");
+			return;
+		}
+        const currentNode = nodes[jumpingPlayer.currentNodeName];
+        const destinationNode = nodes[data.node.name];
+        if (!currentNode.connectedNodes.hasOwnProperty(destinationNode.name)) {
+            sendNotification("Nodes are not connected!");
+			return;
         }
-        else {
-            console.log("WTF player is trying to jump to the star he's at?");
-        }
+        let shipJumpRange = jumpingPlayer.ships[jumpingPlayer.activeShipIndex].cachedShipStats.jumpRange;
+        let destinationNodeJumpRange = currentNode.connectedNodes[destinationNode.name].jumpRange;
+		console.log(shipJumpRange, destinationNodeJumpRange);
+        if (shipJumpRange < destinationNodeJumpRange) {
+			sendNotification("Engines are not strong enough to jump there!");
+			return
+		}
+        socket.leave('node-' + jumpingPlayer.currentNodeName);
+        io.to('node-' + jumpingPlayer.currentNodeName).emit('shipLeftNode', { playerId: jumpingPlayer.id });
+        delete nodes[jumpingPlayer.currentNodeName].ships[data.player.id];
+        players[jumpingPlayer.id].currentNodeName = jumpingPlayer.currentNodeName = data.node.name;
+        io.to('node-' + jumpingPlayer.currentNodeName).emit('shipEnteredNode', { ship: jumpingPlayer.ships[jumpingPlayer.activeShipIndex], playerId: jumpingPlayer.id });
+        socket.emit('playerJumpedToNode', { player: jumpingPlayer, node: nodes[jumpingPlayer.currentNodeName] });
+        nodes[jumpingPlayer.currentNodeName].ships[jumpingPlayer.id] = jumpingPlayer.ships[jumpingPlayer.activeShipIndex];
+        socket.join('node-' + jumpingPlayer.currentNodeName);
     });
 
     socket.on('disconnect', function (data) {
@@ -239,6 +225,7 @@ io.on('connection', function (socket) {
         if (currentNode.hasOwnProperty('star') && !player.isLanded) {
             player.isLanded = true;
             io.to('node-' + player.currentNodeName).emit('shipLeftNode', { playerId: player.id });
+			delete nodes[player.currentNodeName].ships[player.id];
             delete player[player.id];
         }
         playersDb[player.id] = player;
@@ -250,6 +237,11 @@ io.on('connection', function (socket) {
             socket.emit('invalidToken', {});
         }
     }
+
+	function sendNotification(msg)
+	{
+		socket.emit('notificationReceived', { notificationText: msg });
+	}
 });
 
 

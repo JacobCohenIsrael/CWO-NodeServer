@@ -10,13 +10,15 @@
       "resourceList": {
         "Holmium": {
           "name": "Holmium",
-          "amount": 20,
+          "boughtAmount": 0,
+		  "soldAmount": 0,
           "buyPrice": 15,
           "sellPrice": 10
         },
         "Cerium": {
           "name": "Cerium",
-          "amount": 25,
+          "boughtAmount": 0,
+		  "soldAmount": 0,
           "buyPrice": 15,
           "sellPrice": 8
         }
@@ -25,14 +27,15 @@
     "isSafeZone": true,
     "connectedNodes": {
       "NX040PY010": {
-        "jumpDistance": 10
+        "jumpRange": 10
       },
       "NX030": {
-        "jumpDistance": 10
+        "jumpRange": 10
       },
       "NX040PY035": {
-        "jumpDistance": 20
-      }
+        "jumpRange": 20
+      },
+	  "NY020" : {"jumpRange" : 20}
     }
   },
   "Earth": {
@@ -46,13 +49,15 @@
       "resourceList": {
         "Holmium": {
           "name": "Holmium",
-          "amount": 50,
+          "boughtAmount": 0,
+		  "soldAmount": 0,
           "buyPrice": 5,
           "sellPrice": 4
         },
         "Cerium": {
           "name": "Cerium",
-          "amount": 5,
+          "boughtAmount": 0,
+		  "soldAmount": 0,
           "buyPrice": 45,
           "sellPrice": 35
         }
@@ -61,13 +66,16 @@
     "isSafeZone": true,
     "connectedNodes": {
       "NX010PY040": {
-        "jumpDistance": 10
+        "jumpRange": 10
       },
       "PX010PY040": {
-        "jumpDistance": 10
+        "jumpRange": 10
       },
       "NX040PY035": {
-        "jumpDistance": 20
+        "jumpRange": 20
+      },
+	  "PX040PY035" : {
+        "jumpRange": 20
       }
     }
   },
@@ -82,7 +90,8 @@
       "resourceList": {
         "Holmium": {
           "name": "Holmium",
-          "amount": 40,
+          "boughtAmount": 0,
+		  "soldAmount": 0,
           "buyPrice": 15,
           "sellPrice": 10
         },
@@ -97,8 +106,9 @@
     "isSafeZone": true,
     "connectedNodes": {
       "PX040PY010" : {
-        "jumpDistance": 10
-      }
+        "jumpRange": 10
+      },
+	  "NY020" : { "jumpRange" : 20}
     }
   },
   "NX010": {
@@ -140,10 +150,10 @@
     "ships": {},
     "connectedNodes": {
       "Nova": {
-        "jumpDistance": 10
+        "jumpRange": 10
       },
       "NX030PY020": {
-        "jumpDistance": 10
+        "jumpRange": 10
       }
     }
   },
@@ -155,10 +165,10 @@
     "ships": {},
     "connectedNodes": {
       "NX020PY030": {
-        "jumpDistance": 10
+        "jumpRange": 10
       },
       "NX040PY010": {
-        "jumpDistance": 10
+        "jumpRange": 10
       }
     }
   },
@@ -170,10 +180,10 @@
     "ships": {},
     "connectedNodes": {
       "NX010PY040": {
-        "jumpDistance": 10
+        "jumpRange": 10
       },
       "NX030PY020": {
-        "jumpDistance": 10
+        "jumpRange": 10
       }
     }
   },
@@ -185,10 +195,10 @@
     "ships": {},
     "connectedNodes": {
       "Earth": {
-        "jumpDistance": 10
+        "jumpRange": 10
       },
       "NX020PY030": {
-        "jumpDistance": 10
+        "jumpRange": 10
       }
     }
   },
@@ -200,7 +210,7 @@
     "ships": {},
     "connectedNodes": {
       "PX030PY020": {
-        "jumpDistance": 10
+        "jumpRange": 10
       },
       "PX040PY010": {
         "Siera": 10
@@ -215,10 +225,10 @@
     "ships": {},
     "connectedNodes": {
       "PX020PY030": {
-        "jumpDistance": 10
+        "jumpRange": 10
       },
       "PX040PY010": {
-        "jumpDistance": 10
+        "jumpRange": 10
       }
     }
   },
@@ -230,10 +240,10 @@
     "ships": {},
     "connectedNodes": {
       "PX010PY040": {
-        "jumpDistance": 10
+        "jumpRange": 10
       },
       "PX030PY020": {
-        "jumpDistance": 10
+        "jumpRange": 10
       }
     }
   },
@@ -245,10 +255,10 @@
     "ships": {},
     "connectedNodes": {
       "Earth": {
-        "jumpDistance": 10
+        "jumpRange": 10
       },
       "PX020PY030": {
-        "jumpDistance": 10
+        "jumpRange": 10
       }
     }
   },
@@ -258,7 +268,10 @@
     "coordX": 0.0,
     "coordY": -2.0,
     "ships": {},
-    "connectedNodes": {}
+    "connectedNodes": {
+		"Siera" : { "jumpRange" : 20 },
+		"Nova" : { "jumpRange" : 20}
+	}
   },
   "PX040PY035": {
     "name": "PX040PY035",
@@ -266,7 +279,14 @@
     "coordX": 4.0,
     "coordY": 3.5,
     "ships": {},
-    "connectedNodes": {}
+    "connectedNodes": {
+	    "PX020PY030": {
+			"Earth": 20
+		},
+		"Siera": {
+			"jumpRange": 20
+		}
+	}
   },
   "NX040PY035": {
     "name": "NX040PY035",
@@ -274,6 +294,9 @@
     "coordX": -4.0,
     "coordY": 3.5,
     "ships": {},
-    "connectedNodes": {}
+    "connectedNodes": {
+		"Earth" : {"jumpRange" : 20},
+		"Nova" : {"jumpRange" : 20}
+	}
   }
 }

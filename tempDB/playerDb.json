@@ -14,6 +14,7 @@
         "currentHullAmount": 1,
         "currentShieldAmount" : 1,
         "currentEnergyAmount" : 1,
+		"currentCargoHold": 0,
         "shipClass": "jumper",
         "shipType": "Ancients",
         "shipCargo" : {},
@@ -22,7 +23,7 @@
             "name": "BasicEngine",
             "partStats" : {
               "hull": 50,
-              "jumpDistance" : 10
+              "jumpRange" : 20
             }
           },
           {
