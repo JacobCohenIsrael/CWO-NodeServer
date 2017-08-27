@@ -324,8 +324,8 @@
     "coordY": 3.5,
     "ships": {},
     "connectedNodes": {
-      "PX020PY030": {
-        "Earth": 20
+      "Earth": {
+        "jumpRange": 20
       },
       "Siera": {
         "jumpRange": 20
