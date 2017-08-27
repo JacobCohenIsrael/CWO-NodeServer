@@ -5,7 +5,7 @@ const io = require('socket.io')(server);
 const path = require('path');
 const extend = require('util')._extend;
 require('./config/app.configurations')(app);
-
+const ModelsService = require('./src/models/ModelService');
 const playersDb = require('./tempDB/playerDb.json');
 const nodeDb = require('./tempDB/nodeDb.json');
 const players = {};
@@ -13,50 +13,67 @@ const connectionsId = {};
 const nodes = {};
 const nodesCoords = {};
 var idCounter = 2;
-const newPlayer = {
-    id: null,
-    firstName: "Smith",
-    currentNodeName: "Earth",
-    isLanded: true,
-    homePlanetName: "Earth",
-    credits: 1000,
-    activeShipIndex: 0,
-    token: null,
-    ships: [
-        {
-            id: 1,
-            currentHullAmount: 1,
-            currentShieldAmount: 1,
-            currentEnergyAmount: 1,
-			currentCargoHold: 0,
-            shipClass: "jumper",
-            shipType: "Ancients",
-            shipCargo: {},
-            shipParts: [
-                {
-                    "name": "BasicEngine",
-                    "partStats": {
-                        "hull": 50,
-                        "jumpRange": 20
-                    }
-                },
-                {
-                    "name": "BasicCargo",
-                    "partStats": {
-                        "cargoCapacity": 50
-                    }
-                },
-                {
-                    "name": "BasicGenerator",
-                    "partStats": {
-                        "energyRegen": 2,
-                        "energyCapacity": 10
-                    }
-                }
-            ]
-        }
-    ]
-};
+const {Player, Ship, Part} = ModelsService;
+console.log(ModelsService);
+const parts = [
+    new Part('BasicEngine', {
+        "cargoCapacity": 50
+    }),
+    new Part('BasicCargo', {
+        "cargoCapacity": 50
+    }),
+    new Part('BasicGenerator', {
+        "energyRegen": 2,
+        "energyCapacity": 10
+    })
+];
+const ships = [new Ship(1,1,1,1,0,"jumper", "Ancients", {}, parts)];
+const newPlayer = new Player(null, "Smith", "Earth", true, "Earth", 1000, 0, null, ships);
+
+// const newPlayer = {
+//     id: null,
+//     firstName: "Smith",
+//     currentNodeName: "Earth",
+//     isLanded: true,
+//     homePlanetName: "Earth",
+//     credits: 1000,
+//     activeShipIndex: 0,
+//     token: null,
+//     ships: [
+//         {
+//             id: 1,
+//             currentHullAmount: 1,
+//             currentShieldAmount: 1,
+//             currentEnergyAmount: 1,
+//             currentCargoHold: 0,
+//             shipClass: "jumper",
+//             shipType: "Ancients",
+//             shipCargo: {},
+//             shipParts: [
+//                 {
+//                     "name": "BasicEngine",
+//                     "partStats": {
+//                         "hull": 50,
+//                         "jumpRange": 20
+//                     }
+//                 },
+//                 {
+//                     "name": "BasicCargo",
+//                     "partStats": {
+//                         "cargoCapacity": 50
+//                     }
+//                 },
+//                 {
+//                     "name": "BasicGenerator",
+//                     "partStats": {
+//                         "energyRegen": 2,
+//                         "energyCapacity": 10
+//                     }
+//                 }
+//             ]
+//         }
+//     ]
+// };
 
 initNodes();
 require('./routes/routeManager')(app);
