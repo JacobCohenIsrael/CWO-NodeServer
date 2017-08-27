@@ -105,24 +105,24 @@ io.on('connection', function (socket) {
         validatePlayerRequest(data.player);
         const player = players[data.player.id];
         players[player.id].isLanded = true;
-        socket.leave('node-' + player.currentNodeName);
+        leaveRoom('node-' + player.currentNodeName);
         io.to('node-' + player.currentNodeName).emit('shipLeftNode', { playerId: player.id });
         socket.emit('playerLanded', { player: player });
         delete nodes[player.currentNodeName].ships[player.id];
     });
 
     socket.on('departPlayerFromStar', function (data) {
-        //console.log("Departing player " + data.player.id + " From Star");
+        validatePlayerRequest(data.player);
         players[data.player.id].isLanded = false;
         io.to('node-' + data.player.currentNodeName).emit('shipEnteredNode', { ship: data.player.ships[data.player.activeShipIndex], playerId: data.player.id });
         socket.emit('playerDeparted', { 'success': true, player: players[data.player.id], node: nodes[data.player.currentNodeName] });
         nodes[data.player.currentNodeName].ships[data.player.id] = data.player.ships[data.player.activeShipIndex];
-        socket.join('node-' + data.player.currentNodeName);
+        joinRoom('node-' + data.player.currentNodeName);
     });
 
     socket.on('playerEnteredLounge', function (data) {
-        //console.log("Player " + data.player.id + " Entered Lounge");
-        socket.join('lounge' + data.player.currentNodeName);
+        validatePlayerRequest(data.player);
+        joinRoom('lounge' + data.player.currentNodeName);
         socket.emit('playerEnteredLounge', { 'success': true, player: players[data.id] });
     });
 
@@ -134,12 +134,12 @@ io.on('connection', function (socket) {
             player: players[player.id],
             resourceSlotList: nodes[player.currentNodeName].market.resourceList
         });
-        socket.join('market' + data.player.currentNodeName);
+        joinRoom('market' + data.player.currentNodeName);
     });
 
     socket.on('playerLeftLounge', function (data) {
-        //console.log("Player " + data.player.id + " Left Lounge");
-        socket.leave('lounge' + data.player.currentNodeName);
+        validatePlayerRequest(data.player);
+        leaveRoom('lounge' + data.player.currentNodeName);
         socket.emit('playerLeftLounge', { 'success': true, player: players[data.id] });
     });
 
@@ -150,11 +150,11 @@ io.on('connection', function (socket) {
     });
 
     socket.on('playerBuyResource', function (data) {
-        console.log("Player is buying resource ", data);
+        //console.log("Player is buying resource ", data);
+
         const player = data.player;
         validatePlayerRequest(player);
         const resourceList = nodes[player.currentNodeName].market.resourceList;
-
         if (!resourceList.hasOwnProperty(data.resource.name)) {
 			sendNotification("This star does not contain this resource");
             return;
@@ -212,14 +212,14 @@ io.on('connection', function (socket) {
 			sendNotification("Engines are not strong enough to jump there!");
 			return
 		}
-        socket.leave('node-' + jumpingPlayer.currentNodeName);
+        leaveRoom('node-' + jumpingPlayer.currentNodeName);
         io.to('node-' + jumpingPlayer.currentNodeName).emit('shipLeftNode', { playerId: jumpingPlayer.id });
         delete nodes[jumpingPlayer.currentNodeName].ships[data.player.id];
         players[jumpingPlayer.id].currentNodeName = jumpingPlayer.currentNodeName = data.node.name;
         io.to('node-' + jumpingPlayer.currentNodeName).emit('shipEnteredNode', { ship: jumpingPlayer.ships[jumpingPlayer.activeShipIndex], playerId: jumpingPlayer.id });
         socket.emit('playerJumpedToNode', { player: jumpingPlayer, node: nodes[jumpingPlayer.currentNodeName] });
         nodes[jumpingPlayer.currentNodeName].ships[jumpingPlayer.id] = jumpingPlayer.ships[jumpingPlayer.activeShipIndex];
-        socket.join('node-' + jumpingPlayer.currentNodeName);
+        joinRoom('node-' + jumpingPlayer.currentNodeName);
     });
 
     socket.on('disconnect', function (data) {
@@ -238,6 +238,20 @@ io.on('connection', function (socket) {
     function validatePlayerRequest(player) {
         if (players[player.id].token === player.token) {
             socket.emit('invalidToken', {});
+        }
+    }
+
+    function joinRoom(roomName)
+    {
+        if (!socket.rooms.hasOwnProperty(roomName)) {
+            socket.join(roomName);
+        }
+    }
+
+    function leaveRoom(roomName)
+    {
+        if (socket.rooms.hasOwnProperty(roomName)) {
+            socket.leave(roomName);
         }
     }
 

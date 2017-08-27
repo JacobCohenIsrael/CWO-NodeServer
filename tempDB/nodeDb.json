@@ -99,7 +99,8 @@
         },
         "Cerium": {
           "name": "Cerium",
-          "amount": 15,
+          "boughtAmount": 0,
+          "soldAmount": 0,
           "buyPrice": 25,
           "sellPrice": 15
         }
