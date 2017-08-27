@@ -11,14 +11,14 @@
         "Holmium": {
           "name": "Holmium",
           "boughtAmount": 0,
-		  "soldAmount": 0,
+          "soldAmount": 0,
           "buyPrice": 15,
           "sellPrice": 10
         },
         "Cerium": {
           "name": "Cerium",
           "boughtAmount": 0,
-		  "soldAmount": 0,
+          "soldAmount": 0,
           "buyPrice": 15,
           "sellPrice": 8
         }
@@ -35,7 +35,9 @@
       "NX040PY035": {
         "jumpRange": 20
       },
-	  "NY020" : {"jumpRange" : 20}
+      "NY020": {
+        "jumpRange": 20
+      }
     }
   },
   "Earth": {
@@ -50,14 +52,14 @@
         "Holmium": {
           "name": "Holmium",
           "boughtAmount": 0,
-		  "soldAmount": 0,
+          "soldAmount": 0,
           "buyPrice": 5,
           "sellPrice": 4
         },
         "Cerium": {
           "name": "Cerium",
           "boughtAmount": 0,
-		  "soldAmount": 0,
+          "soldAmount": 0,
           "buyPrice": 45,
           "sellPrice": 35
         }
@@ -74,7 +76,7 @@
       "NX040PY035": {
         "jumpRange": 20
       },
-	  "PX040PY035" : {
+      "PX040PY035": {
         "jumpRange": 20
       }
     }
@@ -91,7 +93,7 @@
         "Holmium": {
           "name": "Holmium",
           "boughtAmount": 0,
-		  "soldAmount": 0,
+          "soldAmount": 0,
           "buyPrice": 15,
           "sellPrice": 10
         },
@@ -105,10 +107,18 @@
     },
     "isSafeZone": true,
     "connectedNodes": {
-      "PX040PY010" : {
+      "PX040PY010": {
         "jumpRange": 10
       },
-	  "NY020" : { "jumpRange" : 20}
+      "PX030": {
+        "jumpRange": 10
+      },
+      "NY020": {
+        "jumpRange": 20
+      },
+      "PX040PY035": {
+        "jumpRange": 20
+      }
     }
   },
   "NX010": {
@@ -117,14 +127,29 @@
     "coordX": -1.0,
     "coordY": 0.0,
     "ships": {},
-    "connectedNodes": {}
+    "connectedNodes": {
+      "NX030": {
+        "jumpRange": 10
+      },
+      "PX010": {
+        "jumpRange": 10
+      }
+    }
   },
   "NX030": {
     "name": "NX030",
     "sprite": "empty",
     "coordX": -3.0,
     "coordY": 0.0,
-    "ships": {}
+    "ships": {},
+    "connectedNodes": {
+      "Nova": {
+        "jumpRange": 10
+      },
+      "NX010": {
+        "jumpRange": 10
+      }
+    }
   },
   "PX010": {
     "name": "PX010",
@@ -132,7 +157,14 @@
     "coordX": 1.0,
     "coordY": 0.0,
     "ships": {},
-    "connectedNodes": {}
+    "connectedNodes": {
+      "PX030": {
+        "jumpRange": 10
+      },
+      "NX010": {
+        "jumpRange": 10
+      }
+    }
   },
   "PX030": {
     "name": "PX030",
@@ -140,7 +172,14 @@
     "coordX": 3.0,
     "coordY": 0.0,
     "ships": {},
-    "connectedNodes": {}
+    "connectedNodes": {
+      "Siera": {
+        "jumpRange": 10
+      },
+      "PX010": {
+        "jumpRange": 10
+      }
+    }
   },
   "NX040PY010": {
     "name": "NX040PY010",
@@ -212,8 +251,8 @@
       "PX030PY020": {
         "jumpRange": 10
       },
-      "PX040PY010": {
-        "Siera": 10
+      "Siera": {
+        "jumpRange": 10
       }
     }
   },
@@ -269,9 +308,13 @@
     "coordY": -2.0,
     "ships": {},
     "connectedNodes": {
-		"Siera" : { "jumpRange" : 20 },
-		"Nova" : { "jumpRange" : 20}
-	}
+      "Siera": {
+        "jumpRange": 20
+      },
+      "Nova": {
+        "jumpRange": 20
+      }
+    }
   },
   "PX040PY035": {
     "name": "PX040PY035",
@@ -280,13 +323,13 @@
     "coordY": 3.5,
     "ships": {},
     "connectedNodes": {
-	    "PX020PY030": {
-			"Earth": 20
-		},
-		"Siera": {
-			"jumpRange": 20
-		}
-	}
+      "PX020PY030": {
+        "Earth": 20
+      },
+      "Siera": {
+        "jumpRange": 20
+      }
+    }
   },
   "NX040PY035": {
     "name": "NX040PY035",
@@ -295,8 +338,12 @@
     "coordY": 3.5,
     "ships": {},
     "connectedNodes": {
-		"Earth" : {"jumpRange" : 20},
-		"Nova" : {"jumpRange" : 20}
-	}
+      "Earth": {
+        "jumpRange": 20
+      },
+      "Nova": {
+        "jumpRange": 20
+      }
+    }
   }
 }

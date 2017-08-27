@@ -3,6 +3,7 @@ const app = express();
 const server = require('http').Server(app);
 const io = require('socket.io')(server);
 const path = require('path');
+const extend = require('util')._extend;
 require('./config/app.configurations')(app);
 
 const playersDb = require('./tempDB/playerDb.json');
@@ -68,16 +69,19 @@ io.on('connection', function (socket) {
     socket.emit('connectionResponse', { 'success': true });
     socket.on('login', function (data) {
         const token = data.request.token;
+        let player = null;
         if (!playersDb.hasOwnProperty(token)) {
             console.log("Token is not detected", token);
             console.log("Creating New player with player ID", idCounter);
-            newPlayer.id = idCounter;
-            newPlayer.token = data.request.token;
-			newPlayer.firstName = "Guest" + idCounter;
-            playersDb[token] = newPlayer;
+            player = extend({}, newPlayer);
+            player.id = idCounter;
+            player.token = data.request.token;
+			player.firstName = "Guest" + idCounter;
+            playersDb[token] = player;
             idCounter++;
+        } else {
+            player = playersDb[token];
         }
-        const player = playersDb[token];
         console.log("Player Logged In", player);
         connectionsId[socket.id] = player.id;
         player.ships[0].cachedShipStats = {
