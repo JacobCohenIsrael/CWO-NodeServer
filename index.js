@@ -11,10 +11,9 @@ const nodeDb = require('./tempDB/nodeDb.json');
 const players = {};
 const connectionsId = {};
 const nodes = {};
-const nodesCoords = {};
+const worldMap = {};
 var idCounter = 2;
 const {Player, Ship, Part} = ModelsService;
-console.log(ModelsService);
 const parts = [
     new Part('BasicEngine', {
         "cargoCapacity": 50
@@ -28,52 +27,6 @@ const parts = [
     })
 ];
 const ships = [new Ship(1,1,1,1,0,"jumper", "Ancients", {}, parts)];
-const newPlayer = new Player(null, "Smith", "Earth", true, "Earth", 1000, 0, null, ships);
-
-// const newPlayer = {
-//     id: null,
-//     firstName: "Smith",
-//     currentNodeName: "Earth",
-//     isLanded: true,
-//     homePlanetName: "Earth",
-//     credits: 1000,
-//     activeShipIndex: 0,
-//     token: null,
-//     ships: [
-//         {
-//             id: 1,
-//             currentHullAmount: 1,
-//             currentShieldAmount: 1,
-//             currentEnergyAmount: 1,
-//             currentCargoHold: 0,
-//             shipClass: "jumper",
-//             shipType: "Ancients",
-//             shipCargo: {},
-//             shipParts: [
-//                 {
-//                     "name": "BasicEngine",
-//                     "partStats": {
-//                         "hull": 50,
-//                         "jumpRange": 20
-//                     }
-//                 },
-//                 {
-//                     "name": "BasicCargo",
-//                     "partStats": {
-//                         "cargoCapacity": 50
-//                     }
-//                 },
-//                 {
-//                     "name": "BasicGenerator",
-//                     "partStats": {
-//                         "energyRegen": 2,
-//                         "energyCapacity": 10
-//                     }
-//                 }
-//             ]
-//         }
-//     ]
-// };
 
 initNodes();
 require('./routes/routeManager')(app);
@@ -90,10 +43,7 @@ io.on('connection', function (socket) {
         if (!playersDb.hasOwnProperty(token)) {
             console.log("Token is not detected", token);
             console.log("Creating New player with player ID", idCounter);
-            player = extend({}, newPlayer);
-            player.id = idCounter;
-            player.token = data.request.token;
-			player.firstName = "Guest" + idCounter;
+            player = new Player(idCounter, "Guest" + idCounter, "Earth", true, "Earth", 1000, 0, data.request.token, ships);
             playersDb[token] = player;
             idCounter++;
         } else {
@@ -111,9 +61,7 @@ io.on('connection', function (socket) {
 
         players[player.id] = player;
         socket.emit('loginResponse', {
-            player: player,
-            node: nodes[player.currentNodeName],
-            nodesCoords: nodesCoords
+            player: player
         });
     });
 
@@ -239,18 +187,23 @@ io.on('connection', function (socket) {
         joinRoom('node-' + jumpingPlayer.currentNodeName);
     });
 
-    socket.on('disconnect', function (data) {
+    socket.on('getWorldMapNodes', function(data) {
         const player = players[connectionsId[socket.id]];
-        const currentNode = nodes[player.currentNodeName];
-        if (currentNode.hasOwnProperty('star') && !player.isLanded) {
-            player.isLanded = true;
-            io.to('node-' + player.currentNodeName).emit('shipLeftNode', { playerId: player.id });
-			delete nodes[player.currentNodeName].ships[player.id];
-            delete player[player.id];
-        }
-        playersDb[player.id] = player;
-        delete connectionsId[socket.id];
+        socket.emit('worldMapNodesReceived', { worldMapNodes : worldMap, player : player, currentNode : nodes[player.currentNodeName] });
     });
+
+    // socket.on('disconnect', function (data) {
+    //     const player = players[connectionsId[socket.id]];
+    //     const currentNode = nodes[player.currentNodeName];
+    //     if (currentNode.hasOwnProperty('star') && !player.isLanded) {
+    //         player.isLanded = true;
+    //         io.to('node-' + player.currentNodeName).emit('shipLeftNode', { playerId: player.id });
+	// 		delete nodes[player.currentNodeName].ships[player.id];
+    //         delete player[player.id];
+    //     }
+    //     playersDb[player.id] = player;
+    //     delete connectionsId[socket.id];
+    // });
 
     function validatePlayerRequest(player) {
         if (players[player.id].token === player.token) {
@@ -297,7 +250,7 @@ function initNodes() {
     for (let nodeName in nodeDb) {
         let node = nodeDb[nodeName];
         nodes[nodeName] = node;
-        nodesCoords[nodeName] = {
+        worldMap[nodeName] = {
             name: node.name,
             coordX: node.coordX,
             coordY: node.coordY,
@@ -305,7 +258,7 @@ function initNodes() {
             connectedNodes: node.connectedNodes
         }
         if (node.hasOwnProperty('star')) {
-            nodesCoords[nodeName].star = node.star;
+            worldMap[nodeName].star = node.star;
         }
     }
     //console.log(nodes);
