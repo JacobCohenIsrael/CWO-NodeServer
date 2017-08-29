@@ -1,4 +1,4 @@
-{
+const playerDb = {
   "3adasd2ds-63af-408b-9ce2-931631c0bbed" : {
     "id" : 1,
     "firstName" : "Jacob",
@@ -43,4 +43,5 @@
       }
     ]
   }
-}
+};
+export default playerDb;

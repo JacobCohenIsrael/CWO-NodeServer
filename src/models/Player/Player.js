@@ -1,4 +1,18 @@
-module.exports = class Player {
+/**
+ * @type Player
+ */
+class Player {
+    /**
+     * @param id
+     * @param {string} firstName
+     * @param {string} currentNodeName
+     * @param {Boolean} isLanded
+     * @param {string} homePlanetName
+     * @param {number} credits
+     * @param {number} activeShipIndex
+     * @param token
+     * @param {Ship[]} ships
+     */
     constructor (id, firstName, currentNodeName, isLanded, homePlanetName, credits, activeShipIndex, token, ships) {
         this.id = id;
         this.firstName = firstName;
@@ -10,4 +24,6 @@ module.exports = class Player {
         this.token = token;
         this.ships = ships;
     }
-};
+}
+
+export default Player;

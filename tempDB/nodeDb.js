@@ -1,4 +1,4 @@
-{
+const nodeDb = {
   "Nova": {
     "name": "Nova",
     "coordX": -5.0,
@@ -347,4 +347,5 @@
       }
     }
   }
-}
+};
+export default nodeDb;

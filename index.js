@@ -1,26 +1,23 @@
-const express = require('express');
-const app = express();
-const server = require('http').Server(app);
-const io = require('socket.io')(server);
-const path = require('path');
-const extend = require('util')._extend;
-require('./config/app.configurations')(app);
-const ModelsService = require('./src/models/ModelService');
-const playersDb = require('./tempDB/playerDb.json');
-const nodeDb = require('./tempDB/nodeDb.json');
+import Ship from './src/models/Ship/Ship';
+import Part from './src/models/Ship/Part/Part';
+import nodeDb from './tempDB/nodeDb';
+import playersDb from './tempDB/playerDb';
+import socket from 'socket.io';
+import http from 'http';
+import ServerConfiguration from './config/app.configurations';
+import Player from "./src/models/Player/Player";
+
+const AppConfiguration = new ServerConfiguration();
+
 const players = {};
 const connectionsId = {};
 const nodes = {};
 const nodesCoords = {};
-var idCounter = 2;
-const {Player, Ship, Part} = ModelsService;
-
+let idCounter = 2;
+const server = http.Server(AppConfiguration.app);
+const io = socket(server);
 initNodes();
-require('./routes/routeManager')(app);
-app.get('/', function(req, res) {
-    res.sendFile(path.join(__dirname + '/index.html'));
-});
-app.use(express.static('./'));
+
 io.on('connection', function (socket) {
     console.log('Connectin Established');
     socket.emit('connectionResponse', { 'success': true });
@@ -60,7 +57,7 @@ io.on('connection', function (socket) {
         const player = players[data.player.id];
         players[player.id].isLanded = true;
         leaveRoom('node-' + player.currentNodeName);
-        io.to('node-' + player.currentNodeName).emit('shipLeftNode', { playerId: player.id });
+        io('node-' + player.currentNodeName).emit('shipLeftNode', { playerId: player.id });
         socket.emit('playerLanded', { player: player });
         delete nodes[player.currentNodeName].ships[player.id];
     });
@@ -68,7 +65,7 @@ io.on('connection', function (socket) {
     socket.on('departPlayerFromStar', function (data) {
         validatePlayerRequest(data.player);
         players[data.player.id].isLanded = false;
-        io.to('node-' + data.player.currentNodeName).emit('shipEnteredNode', { ship: data.player.ships[data.player.activeShipIndex], playerId: data.player.id });
+        io('node-' + data.player.currentNodeName).emit('shipEnteredNode', { ship: data.player.ships[data.player.activeShipIndex], playerId: data.player.id });
         socket.emit('playerDeparted', { 'success': true, player: players[data.player.id], node: nodes[data.player.currentNodeName] });
         nodes[data.player.currentNodeName].ships[data.player.id] = data.player.ships[data.player.activeShipIndex];
         joinRoom('node-' + data.player.currentNodeName);
@@ -100,7 +97,7 @@ io.on('connection', function (socket) {
     socket.on('chatSent', (data) => {
         //console.log("Player " + data.player.id + " Sent Chat", data);
         //console.log("Sending message " + data.message.message + " to room '" + data.message.roomKey + data.player.currentNodeName + "' with sender Id " + data.player.id + " with name '" + data.player.firstName + "'");
-        io.to(data.message.roomKey + data.player.currentNodeName).emit('chatMessageReceived', { senderId: data.player.id, senderName: data.player.firstName, receivedMessage: data.message.message });
+        io(data.message.roomKey + data.player.currentNodeName).emit('chatMessageReceived', { senderId: data.player.id, senderName: data.player.firstName, receivedMessage: data.message.message });
     });
 
     socket.on('playerBuyResource', function (data) {
@@ -167,10 +164,10 @@ io.on('connection', function (socket) {
 			return
 		}
         leaveRoom('node-' + jumpingPlayer.currentNodeName);
-        io.to('node-' + jumpingPlayer.currentNodeName).emit('shipLeftNode', { playerId: jumpingPlayer.id });
+        io('node-' + jumpingPlayer.currentNodeName).emit('shipLeftNode', { playerId: jumpingPlayer.id });
         delete nodes[jumpingPlayer.currentNodeName].ships[data.player.id];
         players[jumpingPlayer.id].currentNodeName = jumpingPlayer.currentNodeName = data.node.name;
-        io.to('node-' + jumpingPlayer.currentNodeName).emit('shipEnteredNode', { ship: jumpingPlayer.ships[jumpingPlayer.activeShipIndex], playerId: jumpingPlayer.id });
+        io('node-' + jumpingPlayer.currentNodeName).emit('shipEnteredNode', { ship: jumpingPlayer.ships[jumpingPlayer.activeShipIndex], playerId: jumpingPlayer.id });
         socket.emit('playerJumpedToNode', { player: jumpingPlayer, node: nodes[jumpingPlayer.currentNodeName] });
         nodes[jumpingPlayer.currentNodeName].ships[jumpingPlayer.id] = jumpingPlayer.ships[jumpingPlayer.activeShipIndex];
         joinRoom('node-' + jumpingPlayer.currentNodeName);
@@ -182,7 +179,7 @@ io.on('connection', function (socket) {
         const currentNode = nodes[player.currentNodeName];
         if (currentNode.hasOwnProperty('star') && !player.isLanded) {
             player.isLanded = true;
-            io.to('node-' + player.currentNodeName).emit('shipLeftNode', { playerId: player.id });
+            io('node-' + player.currentNodeName).emit('shipLeftNode', { playerId: player.id });
 			delete nodes[player.currentNodeName].ships[player.id];
             delete player[player.id];
         }
@@ -231,8 +228,7 @@ function logStuff() {
     }
 }
 
-function createNewPlayer(id, token)
-{
+function createNewPlayer(id, token) {
     const parts = [
         new Part('BasicEngine', {
             "cargoCapacity": 50
@@ -247,7 +243,7 @@ function createNewPlayer(id, token)
     ];
     const defaultShip = new Ship(1,1,1,1,0,"jumper", "Ancients", {}, parts);
     const ships = [defaultShip];
-    return new Player(idCounter, "Guest" + idCounter, "Earth", true, "Earth", 1000, 0, token, ships);
+    return new Player(id, "Guest" + id, "Earth", true, "Earth", 1000, 0, token, ships);
 }
 
 function initNodes() {
@@ -268,6 +264,4 @@ function initNodes() {
     //console.log(nodes);
 }
 
-server.listen(app.get('port'), function () {
-    console.log('Server listening on port ' + app.get('port'));
-});
+AppConfiguration.initServer(server);
