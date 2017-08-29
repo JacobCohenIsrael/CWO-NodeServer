@@ -27,53 +27,8 @@ const parts = [
         "energyCapacity": 10
     })
 ];
-const ships = [new Ship(1,1,1,1,0,"jumper", "Ancients", {}, parts)];
-const newPlayer = new Player(null, "Smith", "Earth", true, "Earth", 1000, 0, null, ships);
-
-// const newPlayer = {
-//     id: null,
-//     firstName: "Smith",
-//     currentNodeName: "Earth",
-//     isLanded: true,
-//     homePlanetName: "Earth",
-//     credits: 1000,
-//     activeShipIndex: 0,
-//     token: null,
-//     ships: [
-//         {
-//             id: 1,
-//             currentHullAmount: 1,
-//             currentShieldAmount: 1,
-//             currentEnergyAmount: 1,
-//             currentCargoHold: 0,
-//             shipClass: "jumper",
-//             shipType: "Ancients",
-//             shipCargo: {},
-//             shipParts: [
-//                 {
-//                     "name": "BasicEngine",
-//                     "partStats": {
-//                         "hull": 50,
-//                         "jumpRange": 20
-//                     }
-//                 },
-//                 {
-//                     "name": "BasicCargo",
-//                     "partStats": {
-//                         "cargoCapacity": 50
-//                     }
-//                 },
-//                 {
-//                     "name": "BasicGenerator",
-//                     "partStats": {
-//                         "energyRegen": 2,
-//                         "energyCapacity": 10
-//                     }
-//                 }
-//             ]
-//         }
-//     ]
-// };
+const defaultShip = new Ship(1,1,1,1,0,"jumper", "Ancients", {}, parts);
+const ships = [defaultShip];
 
 initNodes();
 require('./routes/routeManager')(app);
@@ -90,10 +45,7 @@ io.on('connection', function (socket) {
         if (!playersDb.hasOwnProperty(token)) {
             console.log("Token is not detected", token);
             console.log("Creating New player with player ID", idCounter);
-            player = extend({}, newPlayer);
-            player.id = idCounter;
-            player.token = data.request.token;
-			player.firstName = "Guest" + idCounter;
+            player = new Player(idCounter, "Guest" + idCounter, "Earth", true, "Earth", 1000, 0, data.request.token, ships);
             playersDb[token] = player;
             idCounter++;
         } else {
