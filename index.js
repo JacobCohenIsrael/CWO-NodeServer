@@ -14,21 +14,6 @@ const nodes = {};
 const nodesCoords = {};
 var idCounter = 2;
 const {Player, Ship, Part} = ModelsService;
-console.log(ModelsService);
-const parts = [
-    new Part('BasicEngine', {
-        "cargoCapacity": 50
-    }),
-    new Part('BasicCargo', {
-        "cargoCapacity": 50
-    }),
-    new Part('BasicGenerator', {
-        "energyRegen": 2,
-        "energyCapacity": 10
-    })
-];
-const defaultShip = new Ship(1,1,1,1,0,"jumper", "Ancients", {}, parts);
-const ships = [defaultShip];
 
 initNodes();
 require('./routes/routeManager')(app);
@@ -45,7 +30,7 @@ io.on('connection', function (socket) {
         if (!playersDb.hasOwnProperty(token)) {
             console.log("Token is not detected", token);
             console.log("Creating New player with player ID", idCounter);
-            player = new Player(idCounter, "Guest" + idCounter, "Earth", true, "Earth", 1000, 0, data.request.token, ships);
+            player = createNewPlayer(idCounter, token);
             playersDb[token] = player;
             idCounter++;
         } else {
@@ -193,6 +178,7 @@ io.on('connection', function (socket) {
 
     socket.on('disconnect', function (data) {
         const player = players[connectionsId[socket.id]];
+        console.log("Disconnecting player", player.id);
         const currentNode = nodes[player.currentNodeName];
         if (currentNode.hasOwnProperty('star') && !player.isLanded) {
             player.isLanded = true;
@@ -243,6 +229,25 @@ function logStuff() {
         console.log("**************************** Star " + starName + " ****************************");
         console.log(nodeDb[starName]);
     }
+}
+
+function createNewPlayer(id, token)
+{
+    const parts = [
+        new Part('BasicEngine', {
+            "cargoCapacity": 50
+        }),
+        new Part('BasicCargo', {
+            "cargoCapacity": 50
+        }),
+        new Part('BasicGenerator', {
+            "energyRegen": 2,
+            "energyCapacity": 10
+        })
+    ];
+    const defaultShip = new Ship(1,1,1,1,0,"jumper", "Ancients", {}, parts);
+    const ships = [defaultShip];
+    return new Player(idCounter, "Guest" + idCounter, "Earth", true, "Earth", 1000, 0, token, ships);
 }
 
 function initNodes() {
