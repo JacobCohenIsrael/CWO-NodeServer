@@ -56,8 +56,8 @@ io.on('connection', function (socket) {
         validatePlayerRequest(data.player);
         const player = players[data.player.id];
         players[player.id].isLanded = true;
-        leaveRoom('node-' + player.currentNodeName);
-        io('node-' + player.currentNodeName).emit('shipLeftNode', { playerId: player.id });
+        leaveRoom('node' + player.currentNodeName);
+        io.to('node' + player.currentNodeName).emit('shipLeftNode', { playerId: player.id });
         socket.emit('playerLanded', { player: player });
         delete nodes[player.currentNodeName].ships[player.id];
     });
@@ -65,10 +65,10 @@ io.on('connection', function (socket) {
     socket.on('departPlayerFromStar', function (data) {
         validatePlayerRequest(data.player);
         players[data.player.id].isLanded = false;
-        io('node-' + data.player.currentNodeName).emit('shipEnteredNode', { ship: data.player.ships[data.player.activeShipIndex], playerId: data.player.id });
+        io.to('node' + data.player.currentNodeName).emit('shipEnteredNode', { ship: data.player.ships[data.player.activeShipIndex], playerId: data.player.id });
         socket.emit('playerDeparted', { 'success': true, player: players[data.player.id], node: nodes[data.player.currentNodeName] });
         nodes[data.player.currentNodeName].ships[data.player.id] = data.player.ships[data.player.activeShipIndex];
-        joinRoom('node-' + data.player.currentNodeName);
+        joinRoom('node' + data.player.currentNodeName);
     });
 
     socket.on('playerEnteredLounge', function (data) {
@@ -97,7 +97,14 @@ io.on('connection', function (socket) {
     socket.on('chatSent', (data) => {
         //console.log("Player " + data.player.id + " Sent Chat", data);
         //console.log("Sending message " + data.message.message + " to room '" + data.message.roomKey + data.player.currentNodeName + "' with sender Id " + data.player.id + " with name '" + data.player.firstName + "'");
-        io(data.message.roomKey + data.player.currentNodeName).emit('chatMessageReceived', { senderId: data.player.id, senderName: data.player.firstName, receivedMessage: data.message.message });
+        io
+        .to(data.message.roomKey + data.player.currentNodeName)
+        .emit('chatMessageReceived', { 
+            senderId: data.player.id, 
+            senderName: data.player.firstName, 
+            receivedMessage: data.message.message,
+            roomKey : data.roomKey 
+        });
     });
 
     socket.on('playerBuyResource', function (data) {
@@ -107,7 +114,7 @@ io.on('connection', function (socket) {
         validatePlayerRequest(player);
         const resourceList = nodes[player.currentNodeName].market.resourceList;
         if (!resourceList.hasOwnProperty(data.resource.name)) {
-			sendNotification("This star does not contain this resource");
+            sendNotification("This star does not contain this resource");
             return;
         }
         if (players[data.player.id].credits < resourceList[data.resource.name].buyPrice) {
@@ -121,7 +128,7 @@ io.on('connection', function (socket) {
             players[data.player.id].ships[players[data.player.id].activeShipIndex].shipCargo[data.resource.name] = 0;
         }
         players[data.player.id].ships[players[data.player.id].activeShipIndex].shipCargo[data.resource.name] += data.resource.amount;
-		nodes[player.currentNodeName].market.resourceList[data.resource.name].boughtAmount += data.resource.amount;
+        nodes[player.currentNodeName].market.resourceList[data.resource.name].boughtAmount += data.resource.amount;
         socket.emit('playerBoughtResource', { 'success': true, player: players[data.player.id] });
     });
 
@@ -139,7 +146,7 @@ io.on('connection', function (socket) {
         resourceList[data.resource.name].amount += data.resource.amount;
         players[data.player.id].credits += resourceList[data.resource.name].sellPrice;
         players[data.player.id].ships[players[data.player.id].activeShipIndex].shipCargo[data.resource.name] -= data.resource.amount;
-		nodes[player.currentNodeName].market.resourceList[data.resource.name].soldAmount += data.resource.amount;
+        nodes[player.currentNodeName].market.resourceList[data.resource.name].soldAmount += data.resource.amount;
         socket.emit('playerSoldResource', { 'success': true, player: players[data.player.id] });
     });
 
@@ -148,29 +155,29 @@ io.on('connection', function (socket) {
         validatePlayerRequest(data.player);
         const jumpingPlayer = players[data.player.id];
         if (jumpingPlayer.currentNodeName == data.node.name) {
-			console.log("WTF player is trying to jump to the star he's at?");
-			return;
-		}
+            console.log("WTF player is trying to jump to the star he's at?");
+            return;
+        }
         const currentNode = nodes[jumpingPlayer.currentNodeName];
         const destinationNode = nodes[data.node.name];
         if (!currentNode.connectedNodes.hasOwnProperty(destinationNode.name)) {
             sendNotification("Nodes are not connected!");
-			return;
+            return;
         }
         let shipJumpRange = jumpingPlayer.ships[jumpingPlayer.activeShipIndex].cachedShipStats.jumpRange;
         let destinationNodeJumpRange = currentNode.connectedNodes[destinationNode.name].jumpRange;
         if (shipJumpRange < destinationNodeJumpRange) {
-			sendNotification("Engines are not strong enough to jump there!");
-			return
-		}
-        leaveRoom('node-' + jumpingPlayer.currentNodeName);
-        io('node-' + jumpingPlayer.currentNodeName).emit('shipLeftNode', { playerId: jumpingPlayer.id });
+            sendNotification("Engines are not strong enough to jump there!");
+            return
+        }
+        leaveRoom('node' + jumpingPlayer.currentNodeName);
+        io.to('node' + jumpingPlayer.currentNodeName).emit('shipLeftNode', { playerId: jumpingPlayer.id });
         delete nodes[jumpingPlayer.currentNodeName].ships[data.player.id];
         players[jumpingPlayer.id].currentNodeName = jumpingPlayer.currentNodeName = data.node.name;
-        io('node-' + jumpingPlayer.currentNodeName).emit('shipEnteredNode', { ship: jumpingPlayer.ships[jumpingPlayer.activeShipIndex], playerId: jumpingPlayer.id });
+        io.to('node' + jumpingPlayer.currentNodeName).emit('shipEnteredNode', { ship: jumpingPlayer.ships[jumpingPlayer.activeShipIndex], playerId: jumpingPlayer.id });
         socket.emit('playerJumpedToNode', { player: jumpingPlayer, node: nodes[jumpingPlayer.currentNodeName] });
         nodes[jumpingPlayer.currentNodeName].ships[jumpingPlayer.id] = jumpingPlayer.ships[jumpingPlayer.activeShipIndex];
-        joinRoom('node-' + jumpingPlayer.currentNodeName);
+        joinRoom('node' + jumpingPlayer.currentNodeName);
     });
 
     socket.on('disconnect', function (data) {
@@ -179,8 +186,8 @@ io.on('connection', function (socket) {
         const currentNode = nodes[player.currentNodeName];
         if (currentNode.hasOwnProperty('star') && !player.isLanded) {
             player.isLanded = true;
-            io('node-' + player.currentNodeName).emit('shipLeftNode', { playerId: player.id });
-			delete nodes[player.currentNodeName].ships[player.id];
+            io.to('node' + player.currentNodeName).emit('shipLeftNode', { playerId: player.id });
+            delete nodes[player.currentNodeName].ships[player.id];
             delete player[player.id];
         }
         playersDb[player.id] = player;
@@ -193,24 +200,21 @@ io.on('connection', function (socket) {
         }
     }
 
-    function joinRoom(roomName)
-    {
+    function joinRoom(roomName) {
         if (!socket.rooms.hasOwnProperty(roomName)) {
             socket.join(roomName);
         }
     }
 
-    function leaveRoom(roomName)
-    {
+    function leaveRoom(roomName) {
         if (socket.rooms.hasOwnProperty(roomName)) {
             socket.leave(roomName);
         }
     }
 
-	function sendNotification(msg)
-	{
-		socket.emit('notificationReceived', { notificationText: msg });
-	}
+    function sendNotification(msg) {
+        socket.emit('notificationReceived', { notificationText: msg });
+    }
 });
 
 
@@ -241,7 +245,7 @@ function createNewPlayer(id, token) {
             "energyCapacity": 10
         })
     ];
-    const defaultShip = new Ship(1,1,1,1,0,"jumper", "Ancients", {}, parts);
+    const defaultShip = new Ship(1, 1, 1, 1, 0, "jumper", "Ancients", {}, parts);
     const ships = [defaultShip];
     return new Player(id, "Guest" + id, "Earth", true, "Earth", 1000, 0, token, ships);
 }
