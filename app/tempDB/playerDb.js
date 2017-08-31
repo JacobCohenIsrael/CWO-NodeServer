@@ -14,7 +14,7 @@ const playerDb = {
         "currentHullAmount": 1,
         "currentShieldAmount" : 1,
         "currentEnergyAmount" : 1,
-		"currentCargoHold": 0,
+		    "currentCargoHold": 0,
         "shipClass": "jumper",
         "shipType": "Ancients",
         "shipCargo" : {},

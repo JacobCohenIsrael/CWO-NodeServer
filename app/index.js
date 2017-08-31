@@ -12,7 +12,7 @@ const AppConfiguration = new ServerConfiguration();
 const players = {};
 const connectionsId = {};
 const nodes = {};
-const nodesCoords = {};
+const worldMap = {};
 let idCounter = 2;
 const server = http.Server(AppConfiguration.app);
 const io = socket(server);
@@ -47,7 +47,7 @@ io.on('connection', function (socket) {
         socket.emit('loginResponse', {
             player: player,
             node: nodes[player.currentNodeName],
-            nodesCoords: nodesCoords
+            worldMap: worldMap
         });
     });
 
@@ -254,7 +254,7 @@ function initNodes() {
     for (let nodeName in nodeDb) {
         let node = nodeDb[nodeName];
         nodes[nodeName] = node;
-        nodesCoords[nodeName] = {
+        worldMap[nodeName] = {
             name: node.name,
             coordX: node.coordX,
             coordY: node.coordY,
@@ -262,7 +262,7 @@ function initNodes() {
             connectedNodes: node.connectedNodes
         }
         if (node.hasOwnProperty('star')) {
-            nodesCoords[nodeName].star = node.star;
+            worldMap[nodeName].star = node.star;
         }
     }
     //console.log(nodes);
