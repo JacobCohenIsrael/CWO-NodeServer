@@ -78,7 +78,6 @@ io.on('connection', function (socket) {
     });
 
     socket.on('playerEnteredMarket', function (data) {
-        //console.log("Player " + data.player.id + " Entered Lounge");
         const player = data.player;
         validatePlayerRequest(player);
         socket.emit('playerEnteredMarket', {
@@ -86,6 +85,15 @@ io.on('connection', function (socket) {
             resourceSlotList: nodes[player.currentNodeName].market.resourceList
         });
         joinRoom('market' + data.player.currentNodeName);
+    });
+
+	socket.on('playerLeftMarket', function (data) {
+        const player = data.player;
+        validatePlayerRequest(player);
+        socket.emit('playerLeftMarket', {
+            player: players[player.id]
+        });
+        leaveRoom('market' + data.player.currentNodeName);
     });
 
     socket.on('playerLeftLounge', function (data) {
