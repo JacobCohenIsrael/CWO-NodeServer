@@ -77,7 +77,7 @@ io.on('connection', function (socket) {
         socket.emit('playerEnteredLounge', { 'success': true, player: players[data.id] });
     });
 
-    socket.on('playerEnterMarket', function (data) {
+    socket.on('playerEnteredMarket', function (data) {
         //console.log("Player " + data.player.id + " Entered Lounge");
         const player = data.player;
         validatePlayerRequest(player);
@@ -245,7 +245,7 @@ function createNewPlayer(id, token) {
             "energyCapacity": 10
         })
     ];
-    const defaultShip = new Ship(1, 1, 1, 1, 0, "jumper", "Ancients", {}, parts);
+    const defaultShip = new Ship(1, 1, 1, 1, 0, "Jumper", "Ancients", {}, parts);
     const ships = [defaultShip];
     return new Player(id, "Guest" + id, "Earth", true, "Earth", 1000, 0, token, ships);
 }
