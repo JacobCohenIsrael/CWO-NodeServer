@@ -3,26 +3,27 @@
  */
 class Ship {
     /**
-     * @param {number} id
-     * @param {number} currentHullAmount
-     * @param {number} currentShieldAmount
-     * @param {number} currentEnergyAmount
-     * @param {number} currentCargoHold
+     * @param {Stats} baseStats
+     * @param {CurrentStats} currentStats
      * @param {string} shipClass
      * @param {string} shipType
-     * @param {Object} shipCargo
      * @param {Part[]} shipParts
      */
-    constructor (id, currentHullAmount, currentShieldAmount,currentEnergyAmount, currentCargoHold, shipClass, shipType, shipCargo, shipParts) {
-        this.id = id;
-        this.currentHullAmount = currentHullAmount;
-        this.currentShieldAmount = currentShieldAmount;
-        this.currentEnergyAmount = currentEnergyAmount;
-        this.currentCargoHold = currentCargoHold;
+    constructor (baseStats, currentStats, shipClass, shipType, shipParts) {
+        this.baseStats = baseStats;
+        this.currentStats = currentStats;
         this.shipClass = shipClass;
         this.shipType = shipType;
-        this.shipCargo = shipCargo;
         this.shipParts = shipParts;
+
+        this.initCurrentStats();
+    }
+
+    /**
+     * Maximize the current stats
+     */
+    initCurrentStats() {
+        this.currentStats.maximizeCurrentStats(this.baseStats);
     }
 }
 export default Ship;

@@ -1,7 +1,7 @@
 /**
  * @type Stats
  */
-class Stats {
+export class Stats {
     /**
      * @param {number | null} hull
      * @param {number | null} shieldRegen
@@ -25,7 +25,7 @@ class Stats {
 /**
  * @type CurrentStats
  */
-class CurrentStats {
+export class CurrentStats {
     /**
      *
      * @param {number | null} hull
@@ -35,10 +35,18 @@ class CurrentStats {
      */
     constructor(hull = null, shield = null, energy = null, cargo = null) {
         this.hull = hull;
-        this.shield= shield;
+        this.shield = shield;
         this.energy = energy;
         this.cargo = cargo;
     }
-}
 
-export default Stats;
+    /**
+     * @param {Stats} stats
+     */
+    maximizeCurrentStats(stats) {
+        this.hull = stats.hull;
+        this.shield = stats.shieldCapacity;
+        this.energy = stats.energyCapacity;
+        this.cargo = stats.cargoCapacity;
+    }
+}

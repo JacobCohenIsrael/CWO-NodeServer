@@ -4,7 +4,7 @@ import bodyParser from "body-parser";
 import path from "path";
 import routeManager from '../routes/routeManager';
 
-export default class ServerConfiguration {
+export default new class ServerConfiguration {
     constructor() {
         this.app = express();
         this.initServerSettings();
