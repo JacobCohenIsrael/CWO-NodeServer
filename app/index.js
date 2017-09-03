@@ -13,7 +13,6 @@ const server = http.Server(ServerConfiguration.app);
 
 const io = socket(server);
 
-
 io.on('connection', function (socket) {
     console.log('Connecting Established');
     socket.emit('connectionResponse', { 'success': true });
@@ -21,24 +20,14 @@ io.on('connection', function (socket) {
         const token = data.request.token;
         let player = null;
         if (!playersDb.hasOwnProperty(token)) {
-            console.log("Token is not detected", token);
-            console.log("Creating New player with player ID", idCounter);
             player = PlayerBuilder.createNewPlayer(idCounter, token);
             playersDb[token] = player;
             idCounter++;
         } else {
-            player = playersDb[token];
-        }
-        console.log("Player Logged In", player);
-        connectionsId[socket.id] = player.id;
-        player.ships[0].cachedShipStats = {
-            "hull": 50,
-            "cargoCapacity": 50,
-            "jumpRange": 20,
-            "energyRegen": 2,
-            "energyCapacity": 10
-        };
 
+            player = PlayerBuilder.createPlayer(playersDb[token]);
+        }
+        connectionsId[socket.id] = player.id;
         players[player.id] = player;
         socket.emit('loginResponse', {
             player: player,
@@ -112,45 +101,53 @@ io.on('connection', function (socket) {
     });
 
     socket.on('playerBuyResource', function (data) {
-        //console.log("Player is buying resource ", data);
-
-        const player = data.player;
-        validatePlayerRequest(player);
+        validatePlayerRequest(data.player);
+        const player = players[data.player.id];
         const resourceList = NodesInitializer.nodes[player.currentNodeName].market.resourceList;
         if (!resourceList.hasOwnProperty(data.resource.name)) {
             sendNotification("This star does not contain this resource");
             return;
         }
-        if (players[data.player.id].credits < resourceList[data.resource.name].buyPrice) {
-            sendNotification("Player does not have enough credits to purchase this resource");
+        let totalPrice = resourceList[data.resource.name].buyPrice * data.resource.amount;
+        if (player.credits < totalPrice) {
+            sendNotification("You do not have enough credits to purchase this resource");
+            return;
+        }
+
+        if (player.getActiveShip().currentStats.cargo < data.resource.amount) {
+            sendNotification("Not enough space in cargo");
             return;
         }
 
         resourceList[data.resource.name].amount -= data.resource.amount;
-        players[data.player.id].credits -= resourceList[data.resource.name].buyPrice;
-        if (!players[data.player.id].ships[players[data.player.id].activeShipIndex].shipCargo.hasOwnProperty(data.resource.name)) {
-            players[data.player.id].ships[players[data.player.id].activeShipIndex].shipCargo[data.resource.name] = 0;
+        player.credits -= totalPrice;
+        if (!player.getActiveShip().shipCargo.hasOwnProperty(data.resource.name)) {
+            player.getActiveShip().shipCargo[data.resource.name] = 0;
         }
-        players[data.player.id].ships[players[data.player.id].activeShipIndex].shipCargo[data.resource.name] += data.resource.amount;
+        player.getActiveShip().shipCargo[data.resource.name] += data.resource.amount;
         NodesInitializer.nodes[player.currentNodeName].market.resourceList[data.resource.name].boughtAmount += data.resource.amount;
-        socket.emit('playerBoughtResource', { 'success': true, player: players[data.player.id] });
+        player.getActiveShip().currentStats.cargo -= data.resource.amount;
+        socket.emit('playerBoughtResource', { 'success': true, player: player });
     });
 
     socket.on('playerSellResource', function (data) {
-        const player = data.player;
-        if (!players[data.player.id].ships[players[data.player.id].activeShipIndex].shipCargo.hasOwnProperty([data.resource.name])) {
+        validatePlayerRequest(data.player);
+        const player = players[data.player.id];
+        if (!player.getActiveShip().shipCargo.hasOwnProperty([data.resource.name])) {
             sendNotification("Player does not have this resource");
             return;
         }
-        if (!players[data.player.id].ships[players[data.player.id].activeShipIndex].shipCargo[data.resource.name] >= data.resource.amount) {
+        if (!player.getActiveShip().shipCargo[data.resource.name] >= data.resource.amount) {
             sendNotification("Player does not have that amount of resource to sell");
             return;
         }
         const resourceList = NodesInitializer.nodes[player.currentNodeName].market.resourceList;
         resourceList[data.resource.name].amount += data.resource.amount;
-        players[data.player.id].credits += resourceList[data.resource.name].sellPrice;
-        players[data.player.id].ships[players[data.player.id].activeShipIndex].shipCargo[data.resource.name] -= data.resource.amount;
+        let totalPrice = resourceList[data.resource.name].sellPrice * data.resource.amount;
+        player.credits += totalPrice;
+        player.getActiveShip().shipCargo[data.resource.name] -= data.resource.amount;
         NodesInitializer.nodes[player.currentNodeName].market.resourceList[data.resource.name].soldAmount += data.resource.amount;
+        player.getActiveShip().currentStats.cargo += data.resource.amount;
         socket.emit('playerSoldResource', { 'success': true, player: players[data.player.id] });
     });
 
@@ -168,7 +165,7 @@ io.on('connection', function (socket) {
             sendNotification("Nodes are not connected!");
             return;
         }
-        let shipJumpRange = jumpingPlayer.ships[jumpingPlayer.activeShipIndex].cachedShipStats.jumpRange;
+        let shipJumpRange = jumpingPlayer.getActiveShip().maxStats.jumpRange;
         let destinationNodeJumpRange = currentNode.connectedNodes[destinationNode.name].jumpRange;
         if (shipJumpRange < destinationNodeJumpRange) {
             sendNotification("Engines are not strong enough to jump there!");
@@ -194,7 +191,7 @@ io.on('connection', function (socket) {
             delete NodesInitializer.nodes[player.currentNodeName].ships[player.id];
             delete player[player.id];
         }
-        playersDb[player.id] = player;
+        playersDb[player.token] = player;
         delete connectionsId[socket.id];
     });
 
@@ -235,42 +232,5 @@ function logStuff() {
         console.log(nodeDb[starName]);
     }
 }
-//
-// function createNewPlayer(id, token) {
-//     const parts = [
-//         new Part('BasicEngine', {
-//             "cargoCapacity": 50
-//         }),
-//         new Part('BasicCargo', {
-//             "cargoCapacity": 50
-//         }),
-//         new Part('BasicGenerator', {
-//             "energyRegen": 2,
-//             "energyCapacity": 10
-//         })
-//     ];
-//     // const defaultShip = new Ship(1, 1, 1, 1, 0, "jumper", "Ancients", {}, parts);
-//     const defaultShip = new Ship(new Stats(), new CurrentStats(), "Jumper", "Ancients", parts);
-//     const ships = [defaultShip];
-//     return new Player(id, "Guest" + id, "Earth", true, "Earth", 1000, 0, token, ships);
-// }
-
-// function initNodes() {
-//     for (let nodeName in nodeDb) {
-//         let node = nodeDb[nodeName];
-//         nodes[nodeName] = node;
-//         worldMap[nodeName] = {
-//             name: node.name,
-//             coordX: node.coordX,
-//             coordY: node.coordY,
-//             sprite: node.sprite,
-//             connectedNodes: node.connectedNodes
-//         };
-//         if (node.hasOwnProperty('star')) {
-//             worldMap[nodeName].star = node.star;
-//         }
-//     }
-//     //console.log(nodes);
-// }
 
 ServerConfiguration.initServer(server);

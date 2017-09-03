@@ -11,10 +11,12 @@ const playerDb = {
     "ships" : [
       {
         "id" : 1,
-        "currentHullAmount": 1,
-        "currentShieldAmount" : 1,
-        "currentEnergyAmount" : 1,
-		    "currentCargoHold": 0,
+        "currentStats" : {
+          "hull": 50,
+          "shield": 0,
+          "energy": 0,
+          "cargo": 50
+        },
         "shipClass": "Jumper",
         "shipType": "Ancients",
         "shipCargo" : {},

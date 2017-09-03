@@ -8,16 +8,16 @@ export class Stats {
      * @param {number | null} shieldCapacity
      * @param {number | null} energyRegen
      * @param {number | null} energyCapacity
-     * @param {number | null} jumpDistance
+     * @param {number | null} jumpRange
      * @param {number | null} cargoCapacity
      */
-    constructor(hull = null, shieldRegen = null, shieldCapacity = null, energyRegen = null, energyCapacity = null, jumpDistance = null, cargoCapacity = null) {
+    constructor(hull = null, shieldRegen = null, shieldCapacity = null, energyRegen = null, energyCapacity = null, jumpRange = null, cargoCapacity = null) {
         this.hull = hull;
         this.shieldRegen = shieldRegen;
         this.shieldCapacity = shieldCapacity;
         this.energyRegen = energyRegen;
         this.energyCapacity = energyCapacity;
-        this.jumpDistance = jumpDistance;
+        this.jumpRange = jumpRange;
         this.cargoCapacity = cargoCapacity;
     }
 }
