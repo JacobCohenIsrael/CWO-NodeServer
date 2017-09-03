@@ -13,11 +13,10 @@ const server = http.Server(ServerConfiguration.app);
 
 const io = socket(server);
 
-io.on('connection', function (socket) {
-    console.log('Connecting Established');
-    socket.emit('connectionResponse', { 'success': true });
-    socket.on('login', function (data) {
-        const token = data.request.token;
+class LoginController 
+{
+	login(socket, data) {
+		const token = data.request.token;
         let player = null;
         if (!playersDb.hasOwnProperty(token)) {
             player = PlayerBuilder.createNewPlayer(idCounter, token);
@@ -34,7 +33,34 @@ io.on('connection', function (socket) {
             node: NodesInitializer.nodes[player.currentNodeName],
             worldMap: NodesInitializer.worldMap
         });
-    });
+	}
+}
+
+let routes = {
+	"login" : {
+		"controller" : LoginController,
+		"action" : "login"
+	}
+			
+}
+
+io.on('connection', function (socket) {
+
+	socket.use(function(packet, next) {
+		let eventName = packet[0];
+		if (!routes.hasOwnProperty(eventName)) {
+			next();
+			return;
+		}
+		let data = packet[1];
+		const router = routes[eventName];
+		let controller = new router["controller"];
+		let action = router["action"];
+		controller[action](socket, data);;
+	});
+
+    console.log('Connecting Established');
+    socket.emit('connectionResponse', { 'success': true });
 
     socket.on('landPlayerOnStar', function (data) {
         //console.log("Landing player " + data.id + " On Star");
