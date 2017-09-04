@@ -5,7 +5,7 @@ class ServiceManager
     }
 
     get(serviceName) {
-        if (this.services[serviceName]) {
+        if (this.services[serviceName] !== 'defined') {
             return this.services[serviceName];
         }
         return null;
