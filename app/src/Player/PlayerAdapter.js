@@ -24,4 +24,4 @@ class PlayerAdapter
     }
 }
 
-export default PlayerAdapter;
+export default new PlayerAdapter;

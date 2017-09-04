@@ -6,40 +6,52 @@ import {PlayerBuilder} from "~/Player/Player";
 import NodesInitializer from "~/Node";
 import nodeDb from '~/tempDB/nodeDb';
 import playersDb from '~/tempDB/playerDb';
+import EventManager from './src/Service/EventManager';
+import EventHandler from './src/Service/EventHandler';
 import LoginController from '~/Login/LoginController';
 import ServiceManager from "~/Service/ServiceManager";
-import PlayerAdapter from "~/Player/PlayerAdapter";
+import PlayerController from "~/Player/PlayerController";
 const server = http.Server(ServerConfiguration.app);
 const io = socket(server);
-const serviceManager = new ServiceManager();
-const playerAdapter = new PlayerAdapter();
-serviceManager.set('playerAdapter', playerAdapter);
-let routes = {
-	"login" : {
-		"controller" : LoginController,
-		"action" : "login"
-	}
+// const serviceManager = new ServiceManager();
+// const playerAdapter = new PlayerAdapter();
+// serviceManager.set('playerAdapter', playerAdapter);
+const eventManager = new EventManager();
+eventManager.setEvent('login', new EventHandler(PlayerController, 'login'));
+eventManager.setEvent('test', new EventHandler(PlayerController, 'test'));
+// let routes = {
+// 	"login" : {
+// 		"controller" : LoginController,
+// 		"action" : "login"
+// 	}
 			
-};
-console.log(serviceManager);
+// };
+eventManager.getEvent('test').activate('a', 'b');
 io.on('connection', function (socket) {
 
 	socket.use(function(packet, next) {
 		let eventName = packet[0];
-		if (!routes.hasOwnProperty(eventName)) {
-			next();
-			return;
-		}
-		let data = packet[1];
-		const router = routes[eventName];
-		let controller = new router["controller"](serviceManager);
-		let action = router["action"];
-		let args = [socket];
-		for (var key in data)
-        {
-            args.push(data[key]);
+		// if (!routes.hasOwnProperty(eventName)) {
+		// 	next();
+		// 	return;
+        // }
+        if(!eventManager.getEvent(eventName)) {
+            next();
+            return;
+        } else {
+            const data = packet[1];
+            eventManager.getEvent(eventName).activate(socket, data);
         }
-		controller[action](...args);
+		// let data = packet[1];
+		// const router = routes[eventName];
+		// let controller = new router["controller"](serviceManager);
+		// let action = router["action"];
+		// let args = [socket];
+		// for (var key in data)
+        // {
+        //     args.push(data[key]);
+        // }
+		// controller[action](...args);
 	});
 
     console.log('Connecting Established');
