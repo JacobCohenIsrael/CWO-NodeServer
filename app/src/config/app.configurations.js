@@ -2,7 +2,7 @@ import express from "express";
 import morgan from "morgan";
 import bodyParser from "body-parser";
 import path from "path";
-import routeManager from '../routes/routeManager';
+import routeManager from '~/routes/routeManager';
 
 export default new class ServerConfiguration {
     constructor() {

@@ -1,4 +1,4 @@
-import nodeDb from "../tempDB/nodeDb";
+import nodeDb from "~/tempDB/nodeDb";
 
 class NodesInitializer {
     constructor(nodeDb) {

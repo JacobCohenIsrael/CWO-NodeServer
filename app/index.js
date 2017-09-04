@@ -1,9 +1,9 @@
-import nodeDb from './tempDB/nodeDb';
-import playersDb from './tempDB/playerDb';
+import nodeDb from './src/tempDB/nodeDb';
+import playersDb from './src/tempDB/playerDb';
 import socket from 'socket.io';
 import http from 'http';
-import ServerConfiguration from './config/app.configurations';
-import {PlayerBuilder} from "./src/models/Player/Player";
+import ServerConfiguration from './src/config/app.configurations';
+import {PlayerBuilder} from "./src/Player/Player";
 import NodesInitializer from "./src/Node";
 
 const players = {};

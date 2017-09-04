@@ -1,8 +1,8 @@
 
-import Ship from "../Ship/Ship";
-import {CurrentStats, Stats} from "../Ship/Stats/Stats";
-import Part from "../Ship/Part/Part";
-import shipDb from "../../../tempDb/shipDb";
+import Ship from "~/Ship/Ship";
+import {CurrentStats, Stats} from "~/Ship/Stats/Stats";
+import Part from "~/Ship/Part/Part";
+import shipDb from "~/tempDB/shipDb";
 
 /**
  * @type Player
@@ -67,14 +67,12 @@ export class PlayerBuilder {
         const defaultShipSlots = defaultShipStats.slots;
         const defaultShip = new Ship(stats, new CurrentStats(), "Jumper", "Ancients", parts, {}, defaultShipSlots);
         const ships = [defaultShip];
-        const newPlayer = new Player(id, "Guest" + id, "Earth", true, "Earth", 1000, 0, token, ships);
-        return newPlayer;
+        return new Player(id, "Guest" + id, "Earth", true, "Earth", 1000, 0, token, ships);
     }
     
     static createPlayer(player)
     {
         console.log("Creating Player", player);
-        const newPlayer = new Player(player.id, player.firstName, player.currentNodeName, player.isLanded, player.homePlanetName, player.credits, player.activeShipIndex, player.token, player.ships);
-        return newPlayer;
+        return new Player(player.id, player.firstName, player.currentNodeName, player.isLanded, player.homePlanetName, player.credits, player.activeShipIndex, player.token, player.ships);
     }
 }
