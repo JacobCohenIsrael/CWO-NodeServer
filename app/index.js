@@ -85,7 +85,7 @@ io.on('connection', function (socket) {
         leaveRoom('node' + player.currentNodeName);
         io.to('node' + player.currentNodeName).emit('shipLeftNode', { playerId: player.id });
         socket.emit('playerLanded', { player: player });
-        delete NodesInitializer.nodes[player.currentNodeName].ships[player.id];
+        playerAdapter.removePlayerTracksOnNode(player);
     });
 
     socket.on('departPlayerFromStar', function (data) {

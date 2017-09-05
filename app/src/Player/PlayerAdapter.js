@@ -23,6 +23,10 @@ class PlayerAdapter
         }
         return player;
     }
+    
+    removePlayerTracksOnNode(player) {
+        delete NodesInitializer.nodes[player.currentNodeName].ships[player.id];
+    }
 }
 
 export default PlayerAdapter;
