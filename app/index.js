@@ -1,14 +1,14 @@
 import socket from 'socket.io';
 import http from 'http';
-
 import ServerConfiguration from '~/config/app.configurations';
 import {PlayerBuilder} from "~/Player/Player";
 import NodesInitializer from "~/Node";
-import nodeDb from '~/tempDB/nodeDb';
 import playersDb from '~/tempDB/playerDb';
 import LoginController from '~/Login/LoginController';
 import ServiceManager from "~/Service/ServiceManager";
 import PlayerAdapter from "~/Player/PlayerAdapter";
+import EventManager from "~/Service/EventManager";
+
 const server = http.Server(ServerConfiguration.app);
 const io = socket(server);
 const serviceManager = new ServiceManager();
@@ -21,7 +21,39 @@ let routes = {
 	}
 			
 };
-console.log(serviceManager);
+
+
+const eventManager = new EventManager();
+
+//let logInterval = setInterval(logStuff, 3000);
+
+let marketPriceChangeInterval = setInterval(adjustMarketPrices, 1000*1);
+
+function adjustMarketPrices()
+{
+    for (let nodeName in NodesInitializer.nodes)
+    {
+        if (NodesInitializer.nodes[nodeName].hasOwnProperty('market') && nodeName !== "Siera") {
+            const resourceList = NodesInitializer.nodes[nodeName].market.resourceList;
+            for (let resourceName in resourceList) {
+                console.log(`${nodeName} - ${resourceName}`);
+                console.log(resourceList[resourceName]);
+                const resource = resourceList[resourceName];
+                console.log("buy - sell", resource.boughtAmount - resource.soldAmount);
+                console.log("normalize", 10 * (playerAdapter.onlinePlayers + 1) * (resource.buyPrice - resource.sellPrice));
+                console.log("overall", (resource.boughtAmount - resource.soldAmount) / ( 10 * (playerAdapter.onlinePlayers + 1) * (resource.buyPrice - resource.sellPrice)));
+                let newPriceDelta = Math.floor( Math.abs(resource.boughtAmount - resource.soldAmount) / ( 10 * (playerAdapter.onlinePlayers + 1) * (resource.buyPrice - resource.sellPrice) ));
+                if (newPriceDelta !== 0) {
+                    resource.buyPrice += newPriceDelta;
+                    resource.sellPrice = Math.floor(0.7*resource.buyPrice);
+                    resource.boughtAmount = 0;
+                    resource.soldAmount = 0;
+                    io.to('market' + nodeName).emit('resourcePriceChanged', { resource: resource });
+                }
+            }
+        }
+    }
+}
 io.on('connection', function (socket) {
 
 	socket.use(function(packet, next) {
@@ -35,7 +67,7 @@ io.on('connection', function (socket) {
 		let controller = new router["controller"](serviceManager);
 		let action = router["action"];
 		let args = [socket];
-		for (var key in data)
+		for (let key in data)
         {
             args.push(data[key]);
         }
@@ -128,7 +160,6 @@ io.on('connection', function (socket) {
             return;
         }
 
-        resourceList[data.resource.name].amount -= data.resource.amount;
         player.credits -= totalPrice;
         if (!player.getActiveShip().shipCargo.hasOwnProperty(data.resource.name)) {
             player.getActiveShip().shipCargo[data.resource.name] = 0;
@@ -151,7 +182,6 @@ io.on('connection', function (socket) {
             return;
         }
         const resourceList = NodesInitializer.nodes[player.currentNodeName].market.resourceList;
-        resourceList[data.resource.name].amount += data.resource.amount;
         let totalPrice = resourceList[data.resource.name].sellPrice * data.resource.amount;
         player.credits += totalPrice;
         player.getActiveShip().shipCargo[data.resource.name] -= data.resource.amount;
@@ -199,6 +229,7 @@ io.on('connection', function (socket) {
             io.to('node' + player.currentNodeName).emit('shipLeftNode', { playerId: player.id });
             delete NodesInitializer.nodes[player.currentNodeName].ships[player.id];
             delete player[player.id];
+            playerAdapter.onlinePlayers--;
         }
         playersDb[player.token] = player;
         delete playerAdapter.connectionsId[socket.id];
@@ -230,16 +261,40 @@ io.on('connection', function (socket) {
 
 function logStuff() {
     console.log("**************************** Players ****************************");
-    for (var playerId in playerAdapter.players) {
-        console.log("**************************** Player " + playerId + " ****************************");
-        console.log(playerAdapter.players[playerId]);
+    for (let token in playerAdapter.players) {
+        console.log("**************************** Player " + playerAdapter.players[token].id + " ****************************");
+        console.log(playerAdapter.players[token]);
     }
 
     console.log("**************************** Stars ****************************");
-    for (var starName in nodeDb) {
-        console.log("**************************** Star " + starName + " ****************************");
-        console.log(nodeDb[starName]);
+    for (let nodeName in NodesInitializer.nodes) {
+        if (nodeName === "Earth") {
+            console.log("**************************** Node " + nodeName + " ****************************");
+            console.log(syntaxHighlight(NodesInitializer.nodes[nodeName]));
+        }
     }
+}
+
+function syntaxHighlight(json) {
+    if (typeof json != 'string') {
+        json = JSON.stringify(json, undefined, 2);
+    }
+    json = json.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    return json.replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g, function (match) {
+        var cls = 'number';
+        if (/^"/.test(match)) {
+            if (/:$/.test(match)) {
+                cls = 'key';
+            } else {
+                cls = 'string';
+            }
+        } else if (/true|false/.test(match)) {
+            cls = 'boolean';
+        } else if (/null/.test(match)) {
+            cls = 'null';
+        }
+        return match;
+    });
 }
 
 ServerConfiguration.initServer(server);

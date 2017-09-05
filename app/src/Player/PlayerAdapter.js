@@ -8,6 +8,7 @@ class PlayerAdapter
         this.playerBuilder = new PlayerBuilder();
         this.players = {};
         this.connectionsId = {};
+        this.onlinePlayers = 0;
     }
 
     getPlayerByToken(token)

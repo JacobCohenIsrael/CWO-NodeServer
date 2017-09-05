@@ -1,10 +1,20 @@
-class EventManager {
-    constructor() {
-        
-        this.eventMapper = new Map();
+import EventEmitter from "events";
+
+class EventManager extends EventEmitter {
+    subscribe(eventName, callback)
+    {
+        this.on(eventName, callback);
     }
-    
-    set function(eventName, eventHandler) {
-        this.eventMapper(event, eventHandler);
-    };
+
+    dispatch(eventName, ...args)
+    {
+        this.emit(eventName, ...args);
+    }
+
+    subscribeOnce(eventName, callback)
+    {
+        this.once(callback);
+    }
 }
+
+export default EventManager;

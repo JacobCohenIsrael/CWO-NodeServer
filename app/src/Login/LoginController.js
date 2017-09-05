@@ -14,6 +14,7 @@ class LoginController
         let player = this.playerAdapter.getPlayerByToken(token);
         this.playerAdapter.connectionsId[socket.id] = player.id;
         this.playerAdapter.players[player.id] = player;
+        this.playerAdapter.onlinePlayers++;
         socket.emit('loginResponse', {
             player: player,
             node: NodesInitializer.nodes[player.currentNodeName],
