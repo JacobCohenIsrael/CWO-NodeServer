@@ -22,15 +22,17 @@ let routes = {
 			
 };
 
+let controllers = {};
 
 const eventManager = new EventManager();
 
 //let logInterval = setInterval(logStuff, 3000);
 
-let marketPriceChangeInterval = setInterval(adjustMarketPrices, 1000*1);
+let marketPriceChangeInterval = setInterval(adjustMarketPrices, 1000*3);
 
 function adjustMarketPrices()
 {
+	eventManager.dispatch("adjustMarketPrices");
     for (let nodeName in NodesInitializer.nodes)
     {
         if (NodesInitializer.nodes[nodeName].hasOwnProperty('market') && nodeName !== "Siera") {
@@ -40,9 +42,15 @@ function adjustMarketPrices()
                 console.log(resourceList[resourceName]);
                 const resource = resourceList[resourceName];
                 console.log("buy - sell", resource.boughtAmount - resource.soldAmount);
-                console.log("normalize", 10 * (playerAdapter.onlinePlayers + 1) * (resource.buyPrice - resource.sellPrice));
-                console.log("overall", (resource.boughtAmount - resource.soldAmount) / ( 10 * (playerAdapter.onlinePlayers + 1) * (resource.buyPrice - resource.sellPrice)));
-                let newPriceDelta = Math.floor( Math.abs(resource.boughtAmount - resource.soldAmount) / ( 10 * (playerAdapter.onlinePlayers + 1) * (resource.buyPrice - resource.sellPrice) ));
+                console.log("normalize", 100 * (playerAdapter.onlinePlayers + 1) * (resource.buyPrice - resource.sellPrice));
+                console.log("overall", (resource.boughtAmount - resource.soldAmount) / ( 100 * (playerAdapter.onlinePlayers + 1) * (resource.buyPrice - resource.sellPrice)));
+                let newPriceDelta = (resource.boughtAmount - resource.soldAmount) / ( 100 * (playerAdapter.onlinePlayers + 1) * (resource.buyPrice - resource.sellPrice) );
+				if (newPriceDelta > 0) {
+					newPriceDelta = Math.floor(newPriceDelta);
+				} else {
+					newPriceDelta = Math.ceil(newPriceDelta);
+				}
+				console.log("delta: ", newPriceDelta);
                 if (newPriceDelta !== 0) {
                     resource.buyPrice += newPriceDelta;
                     resource.sellPrice = Math.floor(0.7*resource.buyPrice);
@@ -64,7 +72,15 @@ io.on('connection', function (socket) {
 		}
 		let data = packet[1];
 		const router = routes[eventName];
-		let controller = new router["controller"](serviceManager);
+		let controller = null;
+		if (!controllers[router["controller"].constructor.name]) {
+			controller = new router["controller"](serviceManager);
+			controllers[controller.constructor.name] = controller;
+			console.log(controllers);
+		} else {
+			controller = controllers[router["controller"].name]
+		}
+		
 		let action = router["action"];
 		let args = [socket];
 		for (let key in data)

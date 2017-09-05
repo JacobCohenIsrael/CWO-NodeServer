@@ -3,14 +3,14 @@
  */
 class Player {
     /**
-     * @param id
+     * @param {number} id
      * @param {string} firstName
      * @param {string} currentNodeName
      * @param {Boolean} isLanded
      * @param {string} homePlanetName
      * @param {number} credits
      * @param {number} activeShipIndex
-     * @param token
+     * @param {string} token
      * @param {Ship[]} ships
      */
     constructor (id, firstName, currentNodeName, isLanded, homePlanetName, credits, activeShipIndex, token, ships) {
