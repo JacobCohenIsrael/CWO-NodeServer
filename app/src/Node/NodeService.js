@@ -1,7 +1,7 @@
 import nodeDb from "~/tempDB/nodeDb";
 
-class NodesInitializer {
-    constructor(nodeDb) {
+class NodeService {
+    constructor(serviceManager) {
         this.worldMap = {};
         this.nodes = {};
         this.initNodes(nodeDb);
@@ -23,7 +23,11 @@ class NodesInitializer {
             }
         }
     }
+
+	removeShipFromNode(nodeName, entityId)
+    {
+		delete this.nodes[nodeName].ships[entityId];
+    }
 }
 
-const nodeInitializer = new NodesInitializer(nodeDb);
-export default nodeInitializer;
+export default NodeService;

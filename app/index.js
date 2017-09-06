@@ -1,19 +1,24 @@
 import socket from 'socket.io';
 import http from 'http';
-import ServerConfiguration from '~/config/app.configurations';
-import {PlayerBuilder} from "~/Player/Player";
-import NodesInitializer from "~/Node";
+import ServerConfiguration from '~/Config/app.configurations';
+import NodeService from "~/Node/NodeService";
 import playersDb from '~/tempDB/playerDb';
 import LoginController from '~/Login/LoginController';
 import ServiceManager from "~/Service/ServiceManager";
 import PlayerAdapter from "~/Player/PlayerAdapter";
 import EventManager from "~/Service/EventManager";
+import PlayerService from "~/Player/PlayerService";
 
 const server = http.Server(ServerConfiguration.app);
 const io = socket(server);
 const serviceManager = new ServiceManager();
 const playerAdapter = new PlayerAdapter();
 serviceManager.set('playerAdapter', playerAdapter);
+const playerService = new PlayerService(serviceManager);
+const nodeService = new NodeService(serviceManager);
+serviceManager.set('playerService', playerService);
+
+serviceManager.set('nodeService', nodeService);
 let routes = {
 	"login" : {
 		"controller" : LoginController,
@@ -28,15 +33,15 @@ const eventManager = new EventManager();
 
 //let logInterval = setInterval(logStuff, 3000);
 
-let marketPriceChangeInterval = setInterval(adjustMarketPrices, 1000*3);
+//let marketPriceChangeInterval = setInterval(adjustMarketPrices, 1000*3);
 
 function adjustMarketPrices()
 {
 	eventManager.dispatch("adjustMarketPrices");
-    for (let nodeName in NodesInitializer.nodes)
+    for (let nodeName in nodeService.nodes)
     {
-        if (NodesInitializer.nodes[nodeName].hasOwnProperty('market') && nodeName !== "Siera") {
-            const resourceList = NodesInitializer.nodes[nodeName].market.resourceList;
+        if (nodeService.nodes[nodeName].hasOwnProperty('market') && nodeName !== "Siera") {
+            const resourceList = nodeService.nodes[nodeName].market.resourceList;
             for (let resourceName in resourceList) {
                 console.log(`${nodeName} - ${resourceName}`);
                 console.log(resourceList[resourceName]);
@@ -76,7 +81,6 @@ io.on('connection', function (socket) {
 		if (!controllers[router["controller"].constructor.name]) {
 			controller = new router["controller"](serviceManager);
 			controllers[controller.constructor.name] = controller;
-			console.log(controllers);
 		} else {
 			controller = controllers[router["controller"].name]
 		}
@@ -101,15 +105,15 @@ io.on('connection', function (socket) {
         leaveRoom('node' + player.currentNodeName);
         io.to('node' + player.currentNodeName).emit('shipLeftNode', { playerId: player.id });
         socket.emit('playerLanded', { player: player });
-        playerAdapter.removePlayerTracksOnNode(player);
+        nodeService.removeShipFromNode(player.currentNodeName, player.id);
     });
 
     socket.on('departPlayerFromStar', function (data) {
         validatePlayerRequest(data.player);
         playerAdapter.players[data.player.id].isLanded = false;
         io.to('node' + data.player.currentNodeName).emit('shipEnteredNode', { ship: data.player.ships[data.player.activeShipIndex], playerId: data.player.id });
-        socket.emit('playerDeparted', { 'success': true, player: playerAdapter.players[data.player.id], node: NodesInitializer.nodes[data.player.currentNodeName] });
-        NodesInitializer.nodes[data.player.currentNodeName].ships[data.player.id] = data.player.ships[data.player.activeShipIndex];
+        socket.emit('playerDeparted', { 'success': true, player: playerAdapter.players[data.player.id], node: nodeService.nodes[data.player.currentNodeName] });
+        nodeService.nodes[data.player.currentNodeName].ships[data.player.id] = data.player.ships[data.player.activeShipIndex];
         joinRoom('node' + data.player.currentNodeName);
     });
 
@@ -122,9 +126,10 @@ io.on('connection', function (socket) {
     socket.on('playerEnteredMarket', function (data) {
         const player = data.player;
         validatePlayerRequest(player);
+        console.log(nodeService);
         socket.emit('playerEnteredMarket', {
             player: playerAdapter.players[player.id],
-            resourceSlotList: NodesInitializer.nodes[player.currentNodeName].market.resourceList
+            resourceSlotList: nodeService.nodes[player.currentNodeName].market.resourceList
         });
         joinRoom('market' + data.player.currentNodeName);
     });
@@ -160,7 +165,7 @@ io.on('connection', function (socket) {
     socket.on('playerBuyResource', function (data) {
         validatePlayerRequest(data.player);
         const player = playerAdapter.players[data.player.id];
-        const resourceList = NodesInitializer.nodes[player.currentNodeName].market.resourceList;
+        const resourceList = nodeService.nodes[player.currentNodeName].market.resourceList;
         if (!resourceList.hasOwnProperty(data.resource.name)) {
             sendNotification("This star does not contain this resource");
             return;
@@ -181,7 +186,7 @@ io.on('connection', function (socket) {
             player.getActiveShip().shipCargo[data.resource.name] = 0;
         }
         player.getActiveShip().shipCargo[data.resource.name] += data.resource.amount;
-        NodesInitializer.nodes[player.currentNodeName].market.resourceList[data.resource.name].boughtAmount += data.resource.amount;
+        nodeService.nodes[player.currentNodeName].market.resourceList[data.resource.name].boughtAmount += data.resource.amount;
         player.getActiveShip().currentStats.cargo -= data.resource.amount;
         socket.emit('playerBoughtResource', { 'success': true, player: player });
     });
@@ -197,11 +202,11 @@ io.on('connection', function (socket) {
             sendNotification("Player does not have that amount of resource to sell");
             return;
         }
-        const resourceList = NodesInitializer.nodes[player.currentNodeName].market.resourceList;
+        const resourceList = nodeService.nodes[player.currentNodeName].market.resourceList;
         let totalPrice = resourceList[data.resource.name].sellPrice * data.resource.amount;
         player.credits += totalPrice;
         player.getActiveShip().shipCargo[data.resource.name] -= data.resource.amount;
-        NodesInitializer.nodes[player.currentNodeName].market.resourceList[data.resource.name].soldAmount += data.resource.amount;
+        nodeService.nodes[player.currentNodeName].market.resourceList[data.resource.name].soldAmount += data.resource.amount;
         player.getActiveShip().currentStats.cargo += data.resource.amount;
         socket.emit('playerSoldResource', { 'success': true, player: playerAdapter.players[data.player.id] });
     });
@@ -214,8 +219,8 @@ io.on('connection', function (socket) {
             console.log("WTF player is trying to jump to the star he's at?");
             return;
         }
-        const currentNode = NodesInitializer.nodes[jumpingPlayer.currentNodeName];
-        const destinationNode = NodesInitializer.nodes[data.node.name];
+        const currentNode = nodeService.nodes[jumpingPlayer.currentNodeName];
+        const destinationNode = nodeService.nodes[data.node.name];
         if (!currentNode.connectedNodes.hasOwnProperty(destinationNode.name)) {
             sendNotification("Nodes are not connected!");
             return;
@@ -228,22 +233,22 @@ io.on('connection', function (socket) {
         }
         leaveRoom('node' + jumpingPlayer.currentNodeName);
         io.to('node' + jumpingPlayer.currentNodeName).emit('shipLeftNode', { playerId: jumpingPlayer.id });
-        delete NodesInitializer.nodes[jumpingPlayer.currentNodeName].ships[data.player.id];
+        delete nodeService.nodes[jumpingPlayer.currentNodeName].ships[data.player.id];
         playerAdapter.players[jumpingPlayer.id].currentNodeName = jumpingPlayer.currentNodeName = data.node.name;
         io.to('node' + jumpingPlayer.currentNodeName).emit('shipEnteredNode', { ship: jumpingPlayer.ships[jumpingPlayer.activeShipIndex], playerId: jumpingPlayer.id });
-        socket.emit('playerJumpedToNode', { player: jumpingPlayer, node: NodesInitializer.nodes[jumpingPlayer.currentNodeName] });
-        NodesInitializer.nodes[jumpingPlayer.currentNodeName].ships[jumpingPlayer.id] = jumpingPlayer.ships[jumpingPlayer.activeShipIndex];
+        socket.emit('playerJumpedToNode', { player: jumpingPlayer, node: nodeService.nodes[jumpingPlayer.currentNodeName] });
+        nodeService.nodes[jumpingPlayer.currentNodeName].ships[jumpingPlayer.id] = jumpingPlayer.ships[jumpingPlayer.activeShipIndex];
         joinRoom('node' + jumpingPlayer.currentNodeName);
     });
 
     socket.on('disconnect', function (data) {
         const player = playerAdapter.players[playerAdapter.connectionsId[socket.id]];
         console.log("Disconnecting player", player.id);
-        const currentNode = NodesInitializer.nodes[player.currentNodeName];
+        const currentNode = nodeService.nodes[player.currentNodeName];
         if (currentNode.hasOwnProperty('star') && !player.isLanded) {
             player.isLanded = true;
             io.to('node' + player.currentNodeName).emit('shipLeftNode', { playerId: player.id });
-            delete NodesInitializer.nodes[player.currentNodeName].ships[player.id];
+            delete nodeService.nodes[player.currentNodeName].ships[player.id];
             delete player[player.id];
             playerAdapter.onlinePlayers--;
         }
@@ -283,16 +288,16 @@ function logStuff() {
     }
 
     console.log("**************************** Stars ****************************");
-    for (let nodeName in NodesInitializer.nodes) {
+    for (let nodeName in nodeService.nodes) {
         if (nodeName === "Earth") {
             console.log("**************************** Node " + nodeName + " ****************************");
-            console.log(syntaxHighlight(NodesInitializer.nodes[nodeName]));
+            console.log(syntaxHighlight(nodeService.nodes[nodeName]));
         }
     }
 }
 
 function syntaxHighlight(json) {
-    if (typeof json != 'string') {
+    if (typeof json !== 'string') {
         json = JSON.stringify(json, undefined, 2);
     }
     json = json.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');

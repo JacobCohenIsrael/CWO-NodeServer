@@ -1,24 +1,23 @@
-import PlayerAdapter from "~/Player/PlayerAdapter";
-import NodesInitializer from "~/Node";
-import ServiceManager from "~/Service/ServiceManager";
 class LoginController
 {
     constructor(serviceManager)
     {
+        this.playerService = serviceManager.get('playerService');
+        this.nodeService = serviceManager.get('nodeService');
         this.playerAdapter = serviceManager.get('playerAdapter');
     }
 
     login(socket, request) {
         const token = request.token;
 
-        let player = this.playerAdapter.getPlayerByToken(token);
+        let player = this.playerService.getPlayerByToken(token);
         this.playerAdapter.connectionsId[socket.id] = player.id;
         this.playerAdapter.players[player.id] = player;
         this.playerAdapter.onlinePlayers++;
         socket.emit('loginResponse', {
             player: player,
-            node: NodesInitializer.nodes[player.currentNodeName],
-            worldMap: NodesInitializer.worldMap
+            node: this.nodeService.nodes[player.currentNodeName],
+            worldMap: this.nodeService.worldMap
         });
     }
 }

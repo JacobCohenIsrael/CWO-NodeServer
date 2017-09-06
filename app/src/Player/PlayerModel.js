@@ -1,7 +1,7 @@
 /**
- * @type Player
+ * @type PlayerModel
  */
-class Player {
+class PlayerModel {
     /**
      * @param {number} id
      * @param {string} firstName
@@ -30,4 +30,4 @@ class Player {
     }
 }
 
-export default Player;
+export default PlayerModel;
