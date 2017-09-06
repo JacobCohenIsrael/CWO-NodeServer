@@ -23,7 +23,6 @@ class Ship {
         this.slots = slots;
         this.initMaxStats();
         this.initCurrentStats();
-;
     }
 
     /**

@@ -2,7 +2,7 @@ class LoginController
 {
     constructor(serviceManager)
     {
-        this.playerService = serviceManager.get('playerService');
+        this.playerService = serviceManager.getPlayerService();
         this.nodeService = serviceManager.get('nodeService');
         this.playerAdapter = serviceManager.get('playerAdapter');
     }

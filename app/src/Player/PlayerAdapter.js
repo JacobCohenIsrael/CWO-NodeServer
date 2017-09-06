@@ -3,6 +3,8 @@ import Ship from "~/Ship/Ship";
 import shipDb from "~/tempDb/shipDb";
 import {Stats, CurrentStats} from "../Ship/Stats/Stats";
 import PlayerModel from "~/Player/PlayerModel";
+import playerDb from "~/tempDb/playerDb";
+
 class PlayerAdapter
 {
     constructor()
@@ -11,16 +13,16 @@ class PlayerAdapter
         this.players = {};
         this.connectionsId = {};
         this.onlinePlayers = 0;
+        this.playerDb = playerDb;
     }
 
 
 	/**
-	 * @param {string | number} id
 	 * @param {string} token
 	 * @returns {PlayerModel}
 	 */
-	createNewPlayer(id, token) {
-		console.log("Creating new player", id, token)
+	createNewPlayer(token) {
+		console.log("Creating new player", this.playerIdCounter, token)
 		const parts = [
 			new Part('BasicEngine', {
 				"jumpRange": 10
@@ -41,13 +43,22 @@ class PlayerAdapter
 		const defaultShipSlots = defaultShipStats.slots;
 		const defaultShip = new Ship(stats, new CurrentStats(), "Jumper", "Ancients", parts, {}, defaultShipSlots);
 		const ships = [defaultShip];
-		return new PlayerModel(id, "Guest" + id, "Earth", true, "Earth", 1000, 0, token, ships);
+		return new PlayerModel(this.playerIdCounter, "Guest" + this.playerIdCounter, "Earth", true, "Earth", 1000, 0, token, ships);
 	}
 
 	createPlayer(player)
 	{
 		console.log("Creating Player", player);
 		return new PlayerModel(player.id, player.firstName, player.currentNodeName, player.isLanded, player.homePlanetName, player.credits, player.activeShipIndex, player.token, player.ships);
+	}
+
+	getPlayerByToken(token)
+	{
+		if (this.playerDb.hasOwnProperty(token)) {
+			return this.createPlayer(this.playerDb[token]);
+		} else {
+			return this.createNewPlayer(token);
+		}
 	}
 }
 

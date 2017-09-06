@@ -15,6 +15,28 @@ class ServiceManager
     {
         this.services[serviceName] = service;
     }
+
+	/**
+	 * @returns {LoginController}
+	 */
+	getLoginController() {
+        return this.get('loginController');
+    }
+
+	/**
+	 * @returns {PlayerService}
+	 */
+	getPlayerService() {
+		return this.get('playerService');
+	}
+
+	/**
+     * @returns {PlayerAdapter}
+	 */
+	getPlayerAdapter()
+    {
+        return this.get('playerAdapter');
+    }
 }
 
 export default ServiceManager;
