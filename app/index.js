@@ -2,23 +2,14 @@ import socket from 'socket.io';
 import http from 'http';
 import ServerConfiguration from '~/Config/app.configurations';
 import NodeService from "~/Node/NodeService";
-import playersDb from '~/tempDB/playerDb';
 import LoginController from '~/Login/LoginController';
 import ServiceManager from "~/Service/ServiceManager";
-import PlayerAdapter from "~/Player/PlayerAdapter";
-import EventManager from "~/Service/EventManager";
-import PlayerService from "~/Player/PlayerService";
 
 const server = http.Server(ServerConfiguration.app);
 const io = socket(server);
 const serviceManager = new ServiceManager();
-const playerAdapter = new PlayerAdapter();
-serviceManager.set('playerAdapter', playerAdapter);
-const playerService = new PlayerService(serviceManager);
-const nodeService = new NodeService(serviceManager);
-serviceManager.set('playerService', playerService);
-
-serviceManager.set('nodeService', nodeService);
+const playerAdapter = serviceManager.getPlayerAdapter();
+const nodeService = serviceManager.get(NodeService);
 let routes = {
 	"login" : {
 		"controller" : LoginController,
@@ -29,7 +20,7 @@ let routes = {
 
 let controllers = {};
 
-const eventManager = new EventManager();
+const eventManager = serviceManager.getEventManager();
 
 //let logInterval = setInterval(logStuff, 3000);
 
@@ -126,7 +117,6 @@ io.on('connection', function (socket) {
     socket.on('playerEnteredMarket', function (data) {
         const player = data.player;
         validatePlayerRequest(player);
-        console.log(nodeService);
         socket.emit('playerEnteredMarket', {
             player: playerAdapter.players[player.id],
             resourceSlotList: nodeService.nodes[player.currentNodeName].market.resourceList
@@ -242,18 +232,8 @@ io.on('connection', function (socket) {
     });
 
     socket.on('disconnect', function (data) {
-        const player = playerAdapter.players[playerAdapter.connectionsId[socket.id]];
-        console.log("Disconnecting player", player.id);
-        const currentNode = nodeService.nodes[player.currentNodeName];
-        if (currentNode.hasOwnProperty('star') && !player.isLanded) {
-            player.isLanded = true;
-            io.to('node' + player.currentNodeName).emit('shipLeftNode', { playerId: player.id });
-            delete nodeService.nodes[player.currentNodeName].ships[player.id];
-            delete player[player.id];
-            playerAdapter.onlinePlayers--;
-        }
-        playersDb[player.token] = player;
-        delete playerAdapter.connectionsId[socket.id];
+        console.log("disconnecting");
+        eventManager.dispatch("playerDisconnect", socket);
     });
 
     function validatePlayerRequest(player) {

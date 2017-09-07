@@ -1,33 +1,27 @@
+import EventManager from "./EventManager";
+import PlayerAdapter from "../Player/PlayerAdapter";
+import PlayerService from "../Player/PlayerService";
+import NodeService from "../Node/NodeService";
+
 class ServiceManager
 {
     constructor() {
         this.services = {};
     }
 
-    get(serviceName) {
-        if (this.services[serviceName] !== 'undefined') {
-            return this.services[serviceName];
+    get(service) {
+
+        if (!this.services[service.name]) {
+            this.services[service.name] = new service(this);
         }
-        return null;
-    }
-
-    set(serviceName, service)
-    {
-        this.services[serviceName] = service;
-    }
-
-	/**
-	 * @returns {LoginController}
-	 */
-	getLoginController() {
-        return this.get('loginController');
+        return this.services[service.name];
     }
 
 	/**
 	 * @returns {PlayerService}
 	 */
 	getPlayerService() {
-		return this.get('playerService');
+		return this.get(PlayerService);
 	}
 
 	/**
@@ -35,7 +29,21 @@ class ServiceManager
 	 */
 	getPlayerAdapter()
     {
-        return this.get('playerAdapter');
+        return this.get(PlayerAdapter);
+    }
+
+    /**
+     * @returns {EventManager}
+     */
+    getEventManager() {
+	    return this.get(EventManager);
+    }
+
+    /**
+     * @returns {NodeService}
+     */
+    getNodeService() {
+        return this.get(NodeService);
     }
 }
 

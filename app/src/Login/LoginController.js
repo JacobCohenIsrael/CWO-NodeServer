@@ -3,13 +3,14 @@ class LoginController
     constructor(serviceManager)
     {
         this.playerService = serviceManager.getPlayerService();
-        this.nodeService = serviceManager.get('nodeService');
-        this.playerAdapter = serviceManager.get('playerAdapter');
+        this.nodeService = serviceManager.getNodeService();
+        this.playerAdapter = serviceManager.getPlayerAdapter();
+        this.eventManager = serviceManager.getEventManager();
+        this.eventManager.subscribe('playerDisconnect', this.disconnect.bind(this));
     }
 
     login(socket, request) {
         const token = request.token;
-
         let player = this.playerService.getPlayerByToken(token);
         this.playerAdapter.connectionsId[socket.id] = player.id;
         this.playerAdapter.players[player.id] = player;
@@ -20,6 +21,20 @@ class LoginController
             worldMap: this.nodeService.worldMap
         });
     }
+
+    disconnect(socket) {
+        const player = this.playerAdapter.players[this.playerAdapter.connectionsId[socket.id]];
+        const c
+        if (currentNode.hasOwnProperty('star') && !player.isLanded) {
+            player.isLanded = true;
+            socket.io.to('node' + player.currentNodeName).emit('shipLeftNode', { playerId: player.id });
+            delete this.nodeService.nodes[player.currentNodeName].ships[player.id];
+            delete this.playerAdapter.players[player.token];
+            this.playerAdapter.onlinePlayers--;
+        }
+        this.playerAdapter.playerDb[player.token] = player;
+        delete this.playerAdapter.connectionsId[socket.id];
+    };
 }
 
 export default LoginController;
