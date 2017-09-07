@@ -24,7 +24,7 @@ class LoginController
 
     disconnect(socket) {
         const player = this.playerAdapter.players[this.playerAdapter.connectionsId[socket.id]];
-        const c
+        const currentNode = this.nodeService.nodes[player.currentNodeName];
         if (currentNode.hasOwnProperty('star') && !player.isLanded) {
             player.isLanded = true;
             socket.io.to('node' + player.currentNodeName).emit('shipLeftNode', { playerId: player.id });
