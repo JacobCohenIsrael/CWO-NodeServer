@@ -1,4 +1,5 @@
 import RequestEvent from "~/Request/Events/RequestEvent";
+import SocketIOResponseEvent from "../Response/Events/SocketIOResponseEvent";
 
 export default class Application
 {
@@ -11,9 +12,24 @@ export default class Application
 		this.controllers = {};
 	}
 
-	handleSocketIORequest(packet, next)
+	handleSocketIORequest(packet, next, socket)
 	{
 		let route = packet[0];
+		let data = packet[1];
+		const args = [];
+		for (let key in data)
+	   {
+		   args.push(data[key]);
+	   }
+		const response = this.handleRequest(route, ...args);
+		if (response) {
+			const responseEvent = new SocketIOResponseEvent(socket, response);
+			this.eventManager.dispatch(responseEvent);
+		}
+		next();
+	}
+
+	handleRequest(route, ...args) {
 		let controller = null;
 		const requestEvent = new RequestEvent(route);
 		this.eventManager.dispatch(requestEvent);
@@ -27,20 +43,13 @@ export default class Application
 				controller = this.controllers[requestEvent.controller.name];
 			}
 		} else {
-			next();
 			return;
 		}
 
 		let response = null;
-		let args = [packet[1]];
 		if (requestEvent.action) {
 			response = controller[requestEvent.action](...args);
 		}
-
-		if(response.emit) {
-
-		}
-
-		console.log(response);
+		return response;
 	}
 }

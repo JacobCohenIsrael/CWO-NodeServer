@@ -2,11 +2,12 @@ import socket from 'socket.io';
 import http from 'http';
 import ServerConfiguration from '~/Config/app.configurations';
 import NodeService from "~/Node/NodeService";
-import LoginController from '~/Login/LoginController';
 import ServiceManager from "~/Service/ServiceManager";
 import Application from "~/Application/Application";
-import RequestEvent from "./src/Request/Events/RequestEvent";
-import RoutingListener from "./src/Router/RoutingListener";
+import RequestEvent from "~/Request/Events/RequestEvent";
+import RoutingListener from "~/Router/RoutingListener";
+import SocketIOResponseEvent from "~/Response/Events/SocketIOResponseEvent";
+import SocketIOResponseListener from "~/Response/SocketIOResponseListener";
 
 
 const server = http.Server(ServerConfiguration.app);
@@ -20,7 +21,9 @@ let controllers = {};
 
 const eventManager = serviceManager.getEventManager();
 const routingListener = new RoutingListener();
+const responseListener = new SocketIOResponseListener();
 eventManager.subscribe(RequestEvent, routingListener.onRequestEvent.bind(routingListener));
+eventManager.subscribe(SocketIOResponseEvent, responseListener.onSocketIOResponse.bind(responseListener));
 
 //let logInterval = setInterval(logStuff, 3000);
 
@@ -58,9 +61,10 @@ function adjustMarketPrices()
         }
     }
 }
-io.on('connection', function (socket) {
-
-    socket.use(application.handleSocketIORequest.bind(application));
+io.on('connection', (socket) => {
+    socket.use((packet, next) => {
+		application.handleSocketIORequest(packet, next, socket);
+    });
 	// socket.use(function(packet, next) {
 	// 	let eventName = packet[0];
 	// 	if (!routes.hasOwnProperty(eventName)) {
@@ -298,5 +302,5 @@ function syntaxHighlight(json) {
         return match;
     });
 }
-
+process.syntaxHighlight = syntaxHighlight;
 ServerConfiguration.initServer(server);

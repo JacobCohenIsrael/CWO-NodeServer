@@ -2,7 +2,6 @@ import express from "express";
 import morgan from "morgan";
 import bodyParser from "body-parser";
 import path from "path";
-import routeManager from '~/routes/routeManager';
 
 export default new class ServerConfiguration {
     constructor() {
@@ -21,14 +20,6 @@ export default new class ServerConfiguration {
         this.app.use(bodyParser.json());
         this.app.use(bodyParser.urlencoded({ extended: true }));
         this.app.use(express.static('./'));
-    }
-
-    initRouting() {
-        routeManager(this.app);
-
-        this.app.get('/', function(req, res) {
-            res.sendFile(path.join(__dirname + '/index.html'));
-        });
     }
 
     initServer(server) {
