@@ -1,19 +1,28 @@
 import EventEmitter from "events";
 
 class EventManager extends EventEmitter {
-    subscribe(eventName, callback)
+    subscribe(Event, callback)
     {
-        this.on(eventName, callback);
+        this.on(Event.name, callback);
     }
 
-    dispatch(eventName, ...args)
+	/**
+     *
+	 * @param {BaseEvent} event
+	 * @param args
+	 */
+	dispatch(event, ...args)
     {
-        this.emit(eventName, ...args);
+        this.emit(event.eventName, event, ...args);
     }
 
-    subscribeOnce(eventName, callback)
+	/**
+	 * @param {BaseEvent} event
+	 * @param {Function} callback
+	 */
+    subscribeOnce(event, callback)
     {
-        this.once(callback);
+        this.once(event.eventName, callback);
     }
 }
 

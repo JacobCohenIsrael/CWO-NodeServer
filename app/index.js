@@ -4,23 +4,23 @@ import ServerConfiguration from '~/Config/app.configurations';
 import NodeService from "~/Node/NodeService";
 import LoginController from '~/Login/LoginController';
 import ServiceManager from "~/Service/ServiceManager";
+import Application from "~/Application/Application";
+import RequestEvent from "./src/Request/Events/RequestEvent";
+import RoutingListener from "./src/Router/RoutingListener";
+
 
 const server = http.Server(ServerConfiguration.app);
 const io = socket(server);
 const serviceManager = new ServiceManager();
 const playerAdapter = serviceManager.getPlayerAdapter();
 const nodeService = serviceManager.get(NodeService);
-let routes = {
-	"login" : {
-		"controller" : LoginController,
-		"action" : "login"
-	}
-			
-};
+const application = new Application(serviceManager);
 
 let controllers = {};
 
 const eventManager = serviceManager.getEventManager();
+const routingListener = new RoutingListener();
+eventManager.subscribe(RequestEvent, routingListener.onRequestEvent.bind(routingListener));
 
 //let logInterval = setInterval(logStuff, 3000);
 
@@ -60,30 +60,31 @@ function adjustMarketPrices()
 }
 io.on('connection', function (socket) {
 
-	socket.use(function(packet, next) {
-		let eventName = packet[0];
-		if (!routes.hasOwnProperty(eventName)) {
-			next();
-			return;
-		}
-		let data = packet[1];
-		const router = routes[eventName];
-		let controller = null;
-		if (!controllers[router["controller"].constructor.name]) {
-			controller = new router["controller"](serviceManager);
-			controllers[controller.constructor.name] = controller;
-		} else {
-			controller = controllers[router["controller"].name]
-		}
-		
-		let action = router["action"];
-		let args = [socket];
-		for (let key in data)
-        {
-            args.push(data[key]);
-        }
-		controller[action](...args);
-	});
+    socket.use(application.handleSocketIORequest.bind(application));
+	// socket.use(function(packet, next) {
+	// 	let eventName = packet[0];
+	// 	if (!routes.hasOwnProperty(eventName)) {
+	// 		next();
+	// 		return;
+	// 	}
+	// 	let data = packet[1];
+	// 	const router = routes[eventName];
+	// 	let controller = null;
+	// 	if (!controllers[router["controller"].constructor.name]) {
+	// 		controller = new router["controller"](serviceManager);
+	// 		controllers[controller.constructor.name] = controller;
+	// 	} else {
+	// 		controller = controllers[router["controller"].name]
+	// 	}
+	//
+	// 	let action = router["action"];
+	// 	let args = [socket];
+	// 	for (let key in data)
+     //    {
+     //        args.push(data[key]);
+     //    }
+	// 	controller[action](...args);
+	// });
 
     console.log('Connecting Established');
     socket.emit('connectionResponse', { 'success': true });

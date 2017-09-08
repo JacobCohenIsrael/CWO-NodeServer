@@ -9,17 +9,20 @@ class LoginController
         this.eventManager.subscribe('playerDisconnect', this.disconnect.bind(this));
     }
 
-    login(socket, request) {
+    login(request) {
         const token = request.token;
         let player = this.playerService.getPlayerByToken(token);
-        this.playerAdapter.connectionsId[socket.id] = player.id;
+        // this.playerAdapter.connectionsId[socket.id] = player.id;
         this.playerAdapter.players[player.id] = player;
         this.playerAdapter.onlinePlayers++;
-        socket.emit('loginResponse', {
-            player: player,
-            node: this.nodeService.nodes[player.currentNodeName],
-            worldMap: this.nodeService.worldMap
-        });
+        const response = {
+            emit: {
+				player: player,
+				node: this.nodeService.nodes[player.currentNodeName],
+				worldMap: this.nodeService.worldMap
+            }
+		};
+		return response;
     }
 
     disconnect(socket) {
