@@ -1,6 +1,7 @@
 import RequestEvent from "~/Request/Events/RequestEvent";
-import SocketIOResponseEvent from "../Response/Events/SocketIOResponseEvent";
-import BootstrapEvent from "./Events/BootstrapEvent";
+import SocketIOResponseEvent from "~/Response/Events/SocketIOResponseEvent";
+import BootstrapEvent from "~/Application/Events/BootstrapEvent";
+import PlayerModel from "~/Player/PlayerModel";
 import express from 'express';
 export default class Application
 {
@@ -23,9 +24,15 @@ export default class Application
 		let route = packet[0];
 		let data = packet[1];
 		const args = [];
-		for (let key in data)
-	   {
-		   args.push(data[key]);
+		for (let key in data) {
+			switch(key) {
+				case 'player':
+					const player = PlayerModel.buildPlayer(data[key]);
+					args.push(player);
+					break;
+				default:
+					args.push(data[key]);
+			}
 	   }
 		const response = this.handleRequest(route, ...args);
 		if (response) {

@@ -11,6 +11,24 @@ class PlayerService {
 	{
 		return this.playerAdapter.getPlayerByToken(token)
 	}
+
+	landPlayerOnStar(playerId) {
+    	if (!this.playerAdapter.players[playerId]) {
+    		console.log(`Player ${playerId} is not online!`);
+    		return;
+		}
+		const player = this.playerAdapter.players[playerId];
+    	player.isLanded = true;
+	}
+
+	departPlayerFromStar(playerId) {
+		if (!this.playerAdapter.players[playerId]) {
+			console.log(`Player ${playerId} is not online!`);
+			return;
+		}
+		const player = this.playerAdapter.players[playerId];
+		player.isLanded = false;
+	}
 }
 
 export default PlayerService;

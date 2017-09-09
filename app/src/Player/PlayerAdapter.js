@@ -46,16 +46,11 @@ class PlayerAdapter
 		return new PlayerModel(this.playerIdCounter, "Guest" + this.playerIdCounter, "Earth", true, "Earth", 1000, 0, token, ships);
 	}
 
-	createPlayer(player)
-	{
-		console.log("Creating Player", player);
-		return new PlayerModel(player.id, player.firstName, player.currentNodeName, player.isLanded, player.homePlanetName, player.credits, player.activeShipIndex, player.token, player.ships);
-	}
 
 	getPlayerByToken(token)
 	{
 		if (this.playerDb.hasOwnProperty(token)) {
-			return this.createPlayer(this.playerDb[token]);
+			return PlayerModel.buildPlayer(this.playerDb[token]);
 		} else {
 			return this.createNewPlayer(token);
 		}

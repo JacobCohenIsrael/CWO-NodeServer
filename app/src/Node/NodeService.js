@@ -24,9 +24,12 @@ class NodeService {
         }
     }
 
-	removeShipFromNode(nodeName, entityId)
-    {
+	removeShipFromNode(nodeName, entityId) {
 		delete this.nodes[nodeName].ships[entityId];
+    }
+
+    addShipToNode(nodeName, entityId, ship) {
+        this.nodes[nodeName].ships[entityId] = ship;
     }
 }
 

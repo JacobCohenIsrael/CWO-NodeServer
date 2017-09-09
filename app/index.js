@@ -11,7 +11,7 @@ import Config from "./src/Config/Config";
 
 const config = new Config();
 const serviceManager = new ServiceManager(config);
-const networkListener = new NetworkListener(config.get('server.port'));
+const networkListener = new NetworkListener(serviceManager);
 const eventManager = serviceManager.getEventManager();
 eventManager.subscribe(BootstrapEvent, networkListener.onBootstrap.bind(networkListener));
 
@@ -30,7 +30,6 @@ application.run();
 
 function adjustMarketPrices()
 {
-	eventManager.dispatch("adjustMarketPrices");
     for (let nodeName in nodeService.nodes)
     {
         if (nodeService.nodes[nodeName].hasOwnProperty('market') && nodeName !== "Siera") {
@@ -60,49 +59,7 @@ function adjustMarketPrices()
         }
     }
 }
-// io.on('connection', (socket) => {
-    // socket.use((packet, next) => {
-		// application.handleSocketIORequest(packet, next, socket);
-    // });
-	// socket.use(function(packet, next) {
-	// 	let eventName = packet[0];
-	// 	if (!routes.hasOwnProperty(eventName)) {
-	// 		next();
-	// 		return;
-	// 	}
-	// 	let data = packet[1];
-	// 	const router = routes[eventName];
-	// 	let controller = null;
-	// 	if (!controllers[router["controller"].constructor.name]) {
-	// 		controller = new router["controller"](serviceManager);
-	// 		controllers[controller.constructor.name] = controller;
-	// 	} else {
-	// 		controller = controllers[router["controller"].name]
-	// 	}
-	//
-	// 	let action = router["action"];
-	// 	let args = [socket];
-	// 	for (let key in data)
-     //    {
-     //        args.push(data[key]);
-     //    }
-	// 	controller[action](...args);
-	// });
 
-//     console.log('Connecting Established');
-//     socket.emit('connectionResponse', { 'success': true });
-//
-//     socket.on('landPlayerOnStar', function (data) {
-//         //console.log("Landing player " + data.id + " On Star");
-//         validatePlayerRequest(data.player);
-//         const player = playerAdapter.players[data.player.id];
-//         playerAdapter.players[player.id].isLanded = true;
-//         leaveRoom('node' + player.currentNodeName);
-//         io.to('node' + player.currentNodeName).emit('shipLeftNode', { playerId: player.id });
-//         socket.emit('playerLanded', { player: player });
-//         nodeService.removeShipFromNode(player.currentNodeName, player.id);
-//     });
-//
 //     socket.on('departPlayerFromStar', function (data) {
 //         validatePlayerRequest(data.player);
 //         playerAdapter.players[data.player.id].isLanded = false;

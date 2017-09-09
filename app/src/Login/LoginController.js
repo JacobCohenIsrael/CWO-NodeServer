@@ -17,9 +17,12 @@ class LoginController
         this.playerAdapter.onlinePlayers++;
         const response = {
             emit: {
-				player: player,
-				node: this.nodeService.nodes[player.currentNodeName],
-				worldMap: this.nodeService.worldMap
+                eventName : 'loginResponse',
+                eventData : {
+					player: player,
+					node: this.nodeService.nodes[player.currentNodeName],
+					worldMap: this.nodeService.worldMap
+                }
             }
 		};
 		return response;

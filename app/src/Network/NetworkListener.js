@@ -1,12 +1,8 @@
 import socket from 'socket.io';
 import http from 'http';
-import ServerService from "./ServerService";
 
 class NetworkListener
 {
-	constructor() {
-	}
-
 	/**
 	 *
 	 * @param {BootstrapEvent} bootstrapEvent
@@ -17,6 +13,7 @@ class NetworkListener
 		const app = bootstrapEvent.app;
 		const port = process.env.PORT || bootstrapEvent.app.serviceManager.config.get('server.port');
 		io.on('connection', (socket) => {
+			console.log('Connecting Established');
 			socket.use((packet, next) => {
 				app.handleSocketIORequest(packet, next, socket);
 			});
@@ -25,8 +22,8 @@ class NetworkListener
 			console.log(`Server listening on port ${port}`);
 		});
 
-		ServerService.setIO(io);
-		ServerService.setServer(server);
+		this.io = io;
+		this.server = server;
 	}
 }
 
