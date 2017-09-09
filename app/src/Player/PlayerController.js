@@ -38,7 +38,6 @@ class PlayerController
     }
 
 	    departPlayerFromStar(player) {
-			console.log(arguments);
 			this.playerService.departPlayerFromStar(player.id);
 			this.nodeService.addShipToNode(player.currentNodeName, player.id, player.getActiveShip());
 			const response = {
