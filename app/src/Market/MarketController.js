@@ -2,7 +2,7 @@ class MarketController
 {
     constructor(serviceManager)
     {
-        this.eventManager serviceManager.get('eventManager');
+        this.eventManager = serviceManager.get('eventManager');
 
 		this.eventManager.subscribe("adjustMarketPrices", adjustMarketPrices)
     }
