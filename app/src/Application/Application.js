@@ -1,6 +1,7 @@
 import RequestEvent from "~/Request/Events/RequestEvent";
 import SocketIOResponseEvent from "../Response/Events/SocketIOResponseEvent";
-
+import BootstrapEvent from "./Events/BootstrapEvent";
+import express from 'express';
 export default class Application
 {
 	/**
@@ -9,7 +10,12 @@ export default class Application
 	constructor(serviceManager) {
 		this.serviceManager = serviceManager;
 		this.eventManager = serviceManager.getEventManager();
+		this.express = express();
 		this.controllers = {};
+	}
+
+	run() {
+		this.eventManager.dispatch(new BootstrapEvent(this));
 	}
 
 	handleSocketIORequest(packet, next, socket)

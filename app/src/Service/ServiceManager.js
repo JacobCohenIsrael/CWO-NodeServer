@@ -5,8 +5,13 @@ import NodeService from "../Node/NodeService";
 
 class ServiceManager
 {
-    constructor() {
+	/**
+	 *
+	 * @param {Config} config
+	 */
+    constructor(config) {
         this.services = {};
+        this.config = config;
     }
 
     get(service) {
@@ -16,6 +21,15 @@ class ServiceManager
         }
         return this.services[service.name];
     }
+
+	/**
+	 *
+	 * @param key
+	 * @param service
+	 */
+	set(key, service) {
+    	this.services[key] = service;
+	}
 
 	/**
 	 * @returns {PlayerService}
