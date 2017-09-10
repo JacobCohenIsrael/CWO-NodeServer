@@ -21,6 +21,22 @@ const routes = {
 	'departPlayerFromStar' : {
 		'controller' : PlayerController,
 		'action' : 'departPlayerFromStar'
+	},
+	'playerEnteredLounge' : {
+		'controller' : PlayerController,
+		'action' : 'playerEnteredLounge'
+	},
+	'playerEnteredMarket' : {
+		'controller' : PlayerController,
+		'action' : 'playerEnteredMarket'
+	},
+	'playerLeftMarket' : {
+		'controller' : PlayerController,
+		'action' : 'playerLeftMarket'
+	},
+	'playerLeftLounge' : {
+		'controller' : PlayerController,
+		'action' : 'playerLeftLounge'
 	}
 };
 

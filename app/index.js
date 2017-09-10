@@ -59,36 +59,13 @@ function adjustMarketPrices()
     }
 }
 //
-//     socket.on('playerEnteredLounge', function (data) {
-//         validatePlayerRequest(data.player);
-//         joinRoom('lounge' + data.player.currentNodeName);
-//         socket.emit('playerEnteredLounge', { 'success': true, player: playerAdapter.players[data.id] });
-//     });
+
 //
-//     socket.on('playerEnteredMarket', function (data) {
-//         const player = data.player;
-//         validatePlayerRequest(player);
-//         socket.emit('playerEnteredMarket', {
-//             player: playerAdapter.players[player.id],
-//             resourceSlotList: nodeService.nodes[player.currentNodeName].market.resourceList
-//         });
-//         joinRoom('market' + data.player.currentNodeName);
-//     });
+
 //
-// 	socket.on('playerLeftMarket', function (data) {
-//         const player = data.player;
-//         validatePlayerRequest(player);
-//         socket.emit('playerLeftMarket', {
-//             player: playerAdapter.players[player.id]
-//         });
-//         leaveRoom('market' + data.player.currentNodeName);
-//     });
+
 //
-//     socket.on('playerLeftLounge', function (data) {
-//         validatePlayerRequest(data.player);
-//         leaveRoom('lounge' + data.player.currentNodeName);
-//         socket.emit('playerLeftLounge', { 'success': true, player: playerAdapter.players[data.id] });
-//     });
+
 //
 //     socket.on('chatSent', (data) => {
 //         //console.log("Player " + data.player.id + " Sent Chat", data);
