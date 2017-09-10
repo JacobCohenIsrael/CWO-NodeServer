@@ -6,26 +6,19 @@ class LoginController
         this.nodeService = serviceManager.getNodeService();
         this.playerAdapter = serviceManager.getPlayerAdapter();
         this.eventManager = serviceManager.getEventManager();
-        this.eventManager.subscribe('playerDisconnect', this.disconnect.bind(this));
     }
 
-    login(request) {
+    login(socket, request) {
         const token = request.token;
         let player = this.playerService.getPlayerByToken(token);
-        // this.playerAdapter.connectionsId[socket.id] = player.id;
+        this.playerAdapter.connectionsId[socket.id] = player.id;
         this.playerAdapter.players[player.id] = player;
         this.playerAdapter.onlinePlayers++;
-        const response = {
-            emit: {
-                eventName : 'loginResponse',
-                eventData : {
-					player: player,
-					node: this.nodeService.nodes[player.currentNodeName],
-					worldMap: this.nodeService.worldMap
-                }
-            }
-		};
-		return response;
+        socket.emit('loginResponse', {
+            player: player,
+            node: this.nodeService.nodes[player.currentNodeName],
+            worldMap: this.nodeService.worldMap
+        });
     }
 
     disconnect(socket) {
@@ -33,7 +26,7 @@ class LoginController
         const currentNode = this.nodeService.nodes[player.currentNodeName];
         if (currentNode.hasOwnProperty('star') && !player.isLanded) {
             player.isLanded = true;
-            socket.io.to('node' + player.currentNodeName).emit('shipLeftNode', { playerId: player.id });
+            socket.to('node' + player.currentNodeName).emit('shipLeftNode', { playerId: player.id });
             delete this.nodeService.nodes[player.currentNodeName].ships[player.id];
             delete this.playerAdapter.players[player.token];
             this.playerAdapter.onlinePlayers--;

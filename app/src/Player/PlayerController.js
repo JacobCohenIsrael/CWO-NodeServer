@@ -1,3 +1,5 @@
+import SocketIOService from "~/Network/SocketIOService";
+
 class PlayerController
 {
 	/**
@@ -8,53 +10,31 @@ class PlayerController
 		this.playerService = serviceManager.getPlayerService();
 		this.eventManager = serviceManager.getEventManager();
 		this.nodeService = serviceManager.getNodeService();
+		this.socketIOService = serviceManager.get(SocketIOService);
 	}
 
 	/**
-	 *
+	 * @param {Socket} socket
 	 * @param {PlayerModel} player
 	 */
-	landPlayerOnStar(player) {
+	landPlayerOnStar(socket, player) {
         this.playerService.landPlayerOnStar(player.id);
         this.nodeService.removeShipFromNode(player.currentNodeName, player.id);
-
-		const response = {
-			emit: {
-				eventName : 'playerLanded',
-				eventData : {
-					player: player
-				}
-			},
-			to: {
-				roomName : 'node' + player.currentNodeName,
-				emit: {
-					eventName : 'shipLeftNode',
-					eventData : { playerId: player.id }
-				}
-			},
-			leave: 'node' + player.currentNodeName
-		};
-		return response;
+		socket.emit('playerLanded', { player: player });
+		socket.to('node' + player.currentNodeName).emit('shipLeftNode', { playerId: player.id });
+		this.socketIOService.leaveRoom('node' + player.currentNodeName, socket);
     }
 
-	    departPlayerFromStar(player) {
-			this.playerService.departPlayerFromStar(player.id);
-			this.nodeService.addShipToNode(player.currentNodeName, player.id, player.getActiveShip());
-			const response = {
-				emit: {
-					eventName : 'playerDeparted',
-					eventData : { player: player, node: this.nodeService.nodes[player.currentNodeName] }
-				},
-				to: {
-					roomName : 'node' + player.currentNodeName,
-					emit: {
-						eventName : 'shipEnteredNode',
-						eventData : { ship: player.getActiveShip(), playerId: player.id }
-					}
-				},
-				join: 'node' + player.currentNodeName
-			};
-			return response;
+    /**
+     * @param {Socket} socket
+     * @param {PlayerModel} player
+     */
+	departPlayerFromStar(socket, player) {
+		this.playerService.departPlayerFromStar(player.id);
+		this.nodeService.addShipToNode(player.currentNodeName, player.id, player.getActiveShip());
+		socket.emit('playerDeparted' , { player: player, node: this.nodeService.nodes[player.currentNodeName] });
+		socket.to('node' + player.currentNodeName).emit('shipEnteredNode', { ship: player.getActiveShip(), playerId: player.id });
+		this.socketIOService.joinRoom('node' + player.currentNodeName, socket);
     }
 }
 

@@ -5,16 +5,15 @@ import RequestEvent from "~/Request/Events/RequestEvent";
 import RoutingListener from "~/Router/RoutingListener";
 import SocketIOResponseEvent from "~/Response/Events/SocketIOResponseEvent";
 import SocketIOResponseListener from "~/Response/SocketIOResponseListener";
-import BootstrapEvent from "./src/Application/Events/BootstrapEvent";
-import NetworkListener from "./src/Network/NetworkListener";
-import Config from "./src/Config/Config";
+import BootstrapEvent from "~/Application/Events/BootstrapEvent";
+import NetworkListener from "~/Network/NetworkListener";
+import Config from "~/Config/Config";
 
 const config = new Config();
 const serviceManager = new ServiceManager(config);
 const networkListener = new NetworkListener(serviceManager);
 const eventManager = serviceManager.getEventManager();
 eventManager.subscribe(BootstrapEvent, networkListener.onBootstrap.bind(networkListener));
-
 const playerAdapter = serviceManager.getPlayerAdapter();
 const nodeService = serviceManager.get(NodeService);
 const application = new Application(serviceManager);
@@ -59,15 +58,6 @@ function adjustMarketPrices()
         }
     }
 }
-
-//     socket.on('departPlayerFromStar', function (data) {
-//         validatePlayerRequest(data.player);
-//         playerAdapter.players[data.player.id].isLanded = false;
-//         io.to('node' + data.player.currentNodeName).emit('shipEnteredNode', { ship: data.player.ships[data.player.activeShipIndex], playerId: data.player.id });
-//         socket.emit('playerDeparted', { 'success': true, player: playerAdapter.players[data.player.id], node: nodeService.nodes[data.player.currentNodeName] });
-//         nodeService.nodes[data.player.currentNodeName].ships[data.player.id] = data.player.ships[data.player.activeShipIndex];
-//         joinRoom('node' + data.player.currentNodeName);
-//     });
 //
 //     socket.on('playerEnteredLounge', function (data) {
 //         validatePlayerRequest(data.player);
@@ -192,10 +182,7 @@ function adjustMarketPrices()
 //         joinRoom('node' + jumpingPlayer.currentNodeName);
 //     });
 //
-//     socket.on('disconnect', function (data) {
-//         console.log("disconnecting");
-//         eventManager.dispatch("playerDisconnect", socket);
-//     });
+
 //
 //     function validatePlayerRequest(player) {
 //         if (playerAdapter.players[player.id].token === player.token) {

@@ -3,6 +3,10 @@ import http from 'http';
 
 class NetworkListener
 {
+	constructor(serviceManager) {
+		this.serviceManager = serviceManager;
+	}
+
 	/**
 	 *
 	 * @param {BootstrapEvent} bootstrapEvent
@@ -17,13 +21,14 @@ class NetworkListener
 			socket.use((packet, next) => {
 				app.handleSocketIORequest(packet, next, socket);
 			});
+            socket.on('disconnect', function () {
+                console.log("disconnecting");
+                app.handleRequest('disconnect', ...[socket]);
+            });
 		});
 		server.listen(port, () => {
 			console.log(`Server listening on port ${port}`);
 		});
-
-		this.io = io;
-		this.server = server;
 	}
 }
 

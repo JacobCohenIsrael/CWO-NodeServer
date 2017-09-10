@@ -6,9 +6,13 @@ import PlayerController from "~/Player/PlayerController";
  * @type {{login: {controller: LoginController, action: string}}}
  */
 const routes = {
-	'/player/login' : {
+	'login' : {
 		'controller' : LoginController,
 		'action' : 'login'
+	},
+	'disconnect' : {
+		'controller' : LoginController,
+		'action' : 'disconnect'
 	},
 	'landPlayerOnStar' : {
 		'controller' : PlayerController,

@@ -23,7 +23,7 @@ export default class Application
 	{
 		let route = packet[0];
 		let data = packet[1];
-		const args = [];
+		const args = [socket];
 		for (let key in data) {
 			switch(key) {
 				case 'player':
