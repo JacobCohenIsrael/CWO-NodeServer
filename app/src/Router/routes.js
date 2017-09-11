@@ -1,5 +1,6 @@
 import LoginController from "~/Login/LoginController";
 import PlayerController from "~/Player/PlayerController";
+import ChatController from "~/Chat/ChatController";
 
 /**
  *
@@ -13,6 +14,10 @@ const routes = {
 	'disconnect' : {
 		'controller' : LoginController,
 		'action' : 'disconnect'
+	},
+	'chatSent' : {
+		'controller' : ChatController,
+		'action' : 'chatSent'
 	},
 	'landPlayerOnStar' : {
 		'controller' : PlayerController,

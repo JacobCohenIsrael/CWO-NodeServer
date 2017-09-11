@@ -1,5 +1,4 @@
 import RequestEvent from "~/Request/Events/RequestEvent";
-import SocketIOResponseEvent from "~/Response/Events/SocketIOResponseEvent";
 import BootstrapEvent from "~/Application/Events/BootstrapEvent";
 import PlayerModel from "~/Player/PlayerModel";
 import express from 'express';
@@ -34,11 +33,7 @@ export default class Application
 					args.push(data[key]);
 			}
 	   }
-		const response = this.handleRequest(route, ...args);
-		if (response) {
-			const responseEvent = new SocketIOResponseEvent(socket, response);
-			this.eventManager.dispatch(responseEvent);
-		}
+		this.handleRequest(route, ...args);
 		next();
 	}
 

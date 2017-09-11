@@ -18,6 +18,7 @@ class NetworkListener
 		const port = process.env.PORT || bootstrapEvent.app.serviceManager.config.get('server.port');
 		io.on('connection', (socket) => {
 			console.log('Connecting Established');
+			socket.io = io;
 			socket.use((packet, next) => {
 				app.handleSocketIORequest(packet, next, socket);
 			});

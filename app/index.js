@@ -3,8 +3,6 @@ import ServiceManager from "~/Service/ServiceManager";
 import Application from "~/Application/Application";
 import RequestEvent from "~/Request/Events/RequestEvent";
 import RoutingListener from "~/Router/RoutingListener";
-import SocketIOResponseEvent from "~/Response/Events/SocketIOResponseEvent";
-import SocketIOResponseListener from "~/Response/SocketIOResponseListener";
 import BootstrapEvent from "~/Application/Events/BootstrapEvent";
 import NetworkListener from "~/Network/NetworkListener";
 import Config from "~/Config/Config";
@@ -19,9 +17,7 @@ const nodeService = serviceManager.get(NodeService);
 const application = new Application(serviceManager);
 
 const routingListener = new RoutingListener();
-const responseListener = new SocketIOResponseListener();
 eventManager.subscribe(RequestEvent, routingListener.onRequestEvent.bind(routingListener));
-eventManager.subscribe(SocketIOResponseEvent, responseListener.onSocketIOResponse.bind(responseListener));
 application.run();
 //let logInterval = setInterval(logStuff, 3000);
 
@@ -67,18 +63,7 @@ function adjustMarketPrices()
 //
 
 //
-//     socket.on('chatSent', (data) => {
-//         //console.log("Player " + data.player.id + " Sent Chat", data);
-//         //console.log("Sending message " + data.message.message + " to room '" + data.message.roomKey + data.player.currentNodeName + "' with sender Id " + data.player.id + " with name '" + data.player.firstName + "'");
-//         io
-//         .to(data.message.roomKey + data.player.currentNodeName)
-//         .emit('chatMessageReceived', {
-//             senderId: data.player.id,
-//             senderName: data.player.firstName,
-//             receivedMessage: data.message.message,
-//             roomKey : data.roomKey
-//         });
-//     });
+
 //
 //     socket.on('playerBuyResource', function (data) {
 //         validatePlayerRequest(data.player);

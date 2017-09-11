@@ -26,7 +26,7 @@ class LoginController
         const currentNode = this.nodeService.nodes[player.currentNodeName];
         if (currentNode.hasOwnProperty('star') && !player.isLanded) {
             player.isLanded = true;
-            socket.to('node' + player.currentNodeName).emit('shipLeftNode', { playerId: player.id });
+            this.nodeService.removeShipFromNode('node' + player.currentNodeName, player.id);
             delete this.nodeService.nodes[player.currentNodeName].ships[player.id];
             delete this.playerAdapter.players[player.token];
             this.playerAdapter.onlinePlayers--;
