@@ -1,6 +1,5 @@
 import RequestEvent from "~/Request/Events/RequestEvent";
 import BootstrapEvent from "~/Application/Events/BootstrapEvent";
-import PlayerModel from "~/Player/PlayerModel";
 import express from 'express';
 export default class Application
 {
@@ -26,7 +25,7 @@ export default class Application
 		for (let key in data) {
 			switch(key) {
 				case 'player':
-					const player = PlayerModel.buildPlayer(data[key]);
+					const player = this.serviceManager.getPlayerService().getOnlinePlayer(socket, data[key].id, data[key].token);
 					args.push(player);
 					break;
 				default:

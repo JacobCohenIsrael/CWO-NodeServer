@@ -1,7 +1,9 @@
-import EventManager from "./EventManager";
-import PlayerAdapter from "../Player/PlayerAdapter";
-import PlayerService from "../Player/PlayerService";
-import NodeService from "../Node/NodeService";
+import EventManager from "~/Service/EventManager";
+import PlayerAdapter from "~/Player/PlayerAdapter";
+import PlayerService from "~/Player/PlayerService";
+import NodeService from "~/Node/NodeService";
+import NotificationService from "~/Notification/NotificationService";
+import SocketIOService from "~/Network/SocketIOService";
 
 class ServiceManager
 {
@@ -59,6 +61,22 @@ class ServiceManager
     getNodeService() {
         return this.get(NodeService);
     }
+
+    /**
+	 *
+     * @returns {NotificationService}
+     */
+    getNotificationService() {
+    	return this.get(NotificationService);
+	}
+
+    /**
+	 *
+     * @returns {SocketIOService}
+     */
+	getSocketIOService() {
+    	return this.get(SocketIOService);
+	}
 }
 
 export default ServiceManager;

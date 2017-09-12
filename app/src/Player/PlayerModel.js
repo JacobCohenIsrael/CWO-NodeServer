@@ -30,6 +30,8 @@ class PlayerModel {
     }
 
 	static buildPlayer(player) {
+        console.log("Building Player");
+        console.log(player);
 		return new PlayerModel(player.id, player.firstName, player.currentNodeName, player.isLanded, player.homePlanetName, player.credits, player.activeShipIndex, player.token, player.ships);
 	}
 }

@@ -1,6 +1,7 @@
 import LoginController from "~/Login/LoginController";
 import PlayerController from "~/Player/PlayerController";
 import ChatController from "~/Chat/ChatController";
+import MarketController from "../Market/MarketController";
 
 /**
  *
@@ -42,6 +43,18 @@ const routes = {
 	'playerLeftLounge' : {
 		'controller' : PlayerController,
 		'action' : 'playerLeftLounge'
+	},
+	'playerBuyResource' : {
+		'controller' : MarketController,
+		'action' : 'playerBuyResource'
+	},
+	'playerSellResource' : {
+		'controller' : MarketController,
+		'action' : 'playerSellResource'
+	},
+	'jumpPlayerToNode' : {
+		'controller' : PlayerController,
+		'action' : 'jumpPlayerToNode'
 	}
 };
 

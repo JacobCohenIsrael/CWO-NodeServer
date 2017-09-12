@@ -5,6 +5,7 @@ class NodeService {
         this.worldMap = {};
         this.nodes = {};
         this.initNodes(nodeDb);
+        this.playerAdapter = serviceManager.getPlayerAdapter();
     }
 
     initNodes(nodeDb) {

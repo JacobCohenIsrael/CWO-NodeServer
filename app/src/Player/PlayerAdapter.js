@@ -22,7 +22,7 @@ class PlayerAdapter
 	 * @returns {PlayerModel}
 	 */
 	createNewPlayer(token) {
-		console.log("Creating new player", this.playerIdCounter, token)
+		console.log("Creating new player", this.playerIdCounter, token);
 		const parts = [
 			new Part('BasicEngine', {
 				"jumpRange": 10
@@ -49,7 +49,7 @@ class PlayerAdapter
 
 	getPlayerByToken(token)
 	{
-		if (this.playerDb.hasOwnProperty(token)) {
+		if (this.playerDb[token]) {
 			return PlayerModel.buildPlayer(this.playerDb[token]);
 		} else {
 			return this.createNewPlayer(token);

@@ -10,6 +10,7 @@ class PlayerController
 		this.playerService = serviceManager.getPlayerService();
 		this.eventManager = serviceManager.getEventManager();
 		this.nodeService = serviceManager.getNodeService();
+		this.notificationService = serviceManager.getNotificationService();
 		this.socketIOService = serviceManager.get(SocketIOService);
 	}
 
@@ -61,6 +62,34 @@ class PlayerController
 		});
 		this.socketIOService.leaveRoom('market' + player.currentNodeName, socket);
 	}
+
+    jumpPlayerToNode(socket, jumpingPlayer, node) {
+        //console.log("Jumping player " + data.player.id + " From Node " + data.player.currentNodeName + " To Node " + data.node.name);
+        if (jumpingPlayer.currentNodeName === node.name) {
+            console.log("WTF player is trying to jump to the node he's at?");
+            return;
+        }
+        const currentNode = this.nodeService.nodes[jumpingPlayer.currentNodeName];
+        const destinationNode = this.nodeService.nodes[node.name];
+        if (!currentNode.connectedNodes[destinationNode.name]) {
+            this.notificationService.sendNotification("Nodes are not connected!");
+            return;
+        }
+        let shipJumpRange = jumpingPlayer.getActiveShip().maxStats.jumpRange;
+        let destinationNodeJumpRange = currentNode.connectedNodes[destinationNode.name].jumpRange;
+        if (shipJumpRange < destinationNodeJumpRange) {
+            this.notificationService.sendNotification("Engines are not strong enough to jump there!");
+            return
+        }
+        this.socketIOService.leaveRoom('node' + jumpingPlayer.currentNodeName, socket);
+        socket.io.to('node' + jumpingPlayer.currentNodeName).emit('shipLeftNode', { playerId: jumpingPlayer.id });
+        delete this.nodeService.nodes[jumpingPlayer.currentNodeName].ships[jumpingPlayer.id];
+        jumpingPlayer.currentNodeName = node.name;
+        socket.io.to('node' + jumpingPlayer.currentNodeName).emit('shipEnteredNode', { ship: jumpingPlayer.ships[jumpingPlayer.activeShipIndex], playerId: jumpingPlayer.id });
+        socket.emit('playerJumpedToNode', { player: jumpingPlayer, node: this.nodeService.nodes[jumpingPlayer.currentNodeName] });
+        this.nodeService.nodes[jumpingPlayer.currentNodeName].ships[jumpingPlayer.id] = jumpingPlayer.ships[jumpingPlayer.activeShipIndex];
+        this.socketIOService.joinRoom('node' + jumpingPlayer.currentNodeName, socket);
+    }
 }
 
 export default PlayerController;
