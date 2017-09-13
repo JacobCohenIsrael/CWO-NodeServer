@@ -1,4 +1,4 @@
-import BaseEvent from "~/Event/BaseEvent";
+import BaseEvent from "/Event/BaseEvent";
 
 class BootstrapEvent extends BaseEvent
 {

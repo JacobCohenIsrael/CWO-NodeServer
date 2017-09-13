@@ -1,5 +1,5 @@
-import RequestEvent from "~/Request/Events/RequestEvent";
-import BootstrapEvent from "~/Application/Events/BootstrapEvent";
+import RequestEvent from "/Request/Events/RequestEvent";
+import BootstrapEvent from "/Application/Events/BootstrapEvent";
 import express from 'express';
 export default class Application
 {

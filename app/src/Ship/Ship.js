@@ -1,4 +1,4 @@
-import {CurrentStats, Stats} from "~/Ship/Stats/Stats";
+import {CurrentStats, Stats} from "/Ship/Stats/Stats";
 
 /**
  * @type Ship

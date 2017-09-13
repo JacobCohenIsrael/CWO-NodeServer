@@ -1,4 +1,4 @@
-import SocketIOService from "~/Network/SocketIOService";
+import SocketIOService from "/Network/SocketIOService";
 
 class PlayerController
 {

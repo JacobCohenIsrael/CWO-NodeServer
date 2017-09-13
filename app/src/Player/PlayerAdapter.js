@@ -1,9 +1,9 @@
-import Part from "~/Ship/Part/Part";
-import Ship from "~/Ship/Ship";
-import shipDb from "~/tempDb/shipDb";
-import {Stats, CurrentStats} from "../Ship/Stats/Stats";
-import PlayerModel from "~/Player/PlayerModel";
-import playerDb from "~/tempDb/playerDb";
+import Part from "/Ship/Part/Part";
+import Ship from "/Ship/Ship";
+import shipDb from "/tempDb/shipDb";
+import {Stats, CurrentStats} from "/Ship/Stats/Stats";
+import PlayerModel from "/Player/PlayerModel";
+import playerDb from "/tempDb/playerDb";
 
 class PlayerAdapter
 {
@@ -43,6 +43,7 @@ class PlayerAdapter
 		const defaultShipSlots = defaultShipStats.slots;
 		const defaultShip = new Ship(stats, new CurrentStats(), "Jumper", "Ancients", parts, {}, defaultShipSlots);
 		const ships = [defaultShip];
+		this.playerIdCounter++;
 		return new PlayerModel(this.playerIdCounter, "Guest" + this.playerIdCounter, "Earth", true, "Earth", 1000, 0, token, ships);
 	}
 

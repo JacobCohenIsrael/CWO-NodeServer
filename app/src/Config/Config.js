@@ -1,4 +1,4 @@
-import common_config from "./common_config";
+import common_config from "/Config/common_config";
 
 export default class Config
 {

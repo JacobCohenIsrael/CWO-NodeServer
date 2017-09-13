@@ -1,9 +1,9 @@
-import EventManager from "~/Service/EventManager";
-import PlayerAdapter from "~/Player/PlayerAdapter";
-import PlayerService from "~/Player/PlayerService";
-import NodeService from "~/Node/NodeService";
-import NotificationService from "~/Notification/NotificationService";
-import SocketIOService from "~/Network/SocketIOService";
+import EventManager from "/Service/EventManager";
+import PlayerAdapter from "/Player/PlayerAdapter";
+import PlayerService from "/Player/PlayerService";
+import NodeService from "/Node/NodeService";
+import NotificationService from "/Notification/NotificationService";
+import SocketIOService from "/Network/SocketIOService";
 
 class ServiceManager
 {
