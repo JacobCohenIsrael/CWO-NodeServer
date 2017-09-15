@@ -21,6 +21,7 @@ class Ship {
         this.shipParts = shipParts;
         this.shipCargo = shipCargo;
         this.slots = slots;
+        this.lastEnergyUpdateTime = Date.now();
         this.initMaxStats();
         this.initCurrentStats();
     }

@@ -72,19 +72,32 @@ class PlayerController
         const currentNode = this.nodeService.nodes[jumpingPlayer.currentNodeName];
         const destinationNode = this.nodeService.nodes[node.name];
         if (!currentNode.connectedNodes[destinationNode.name]) {
-            this.notificationService.sendNotification("Nodes are not connected!");
+            this.notificationService.sendNotification(socket, "Nodes are not connected!");
             return;
         }
         let shipJumpRange = jumpingPlayer.getActiveShip().maxStats.jumpRange;
         let destinationNodeJumpRange = currentNode.connectedNodes[destinationNode.name].jumpRange;
         if (shipJumpRange < destinationNodeJumpRange) {
-            this.notificationService.sendNotification("Engines are not strong enough to jump there!");
-            return
+            this.notificationService.sendNotification(socket, "Engines are not strong enough to jump there!");
+            return;
         }
+        let timeSinceLastEnergyUpdate = Date.now() - jumpingPlayer.getActiveShip().lastEnergyUpdateTime;
+        let secondsSinceLastEnergyUpdate = Math.floor(timeSinceLastEnergyUpdate / 1000);
+		if (secondsSinceLastEnergyUpdate > 1) {
+			let newEnergy = jumpingPlayer.getActiveShip().currentStats.energy + jumpingPlayer.getActiveShip().maxStats.energyRegen * secondsSinceLastEnergyUpdate;
+			jumpingPlayer.getActiveShip().currentStats.energy = Math.min(jumpingPlayer.getActiveShip().maxStats.energyCapacity, newEnergy);
+			jumpingPlayer.getActiveShip().lastEnergyUpdateTime = Date.now() - (timeSinceLastEnergyUpdate - secondsSinceLastEnergyUpdate * 1000);
+		}
+        if (jumpingPlayer.getActiveShip().currentStats.energy < destinationNodeJumpRange) {
+			this.notificationService.sendNotification(socket, "Not enough energy to jump there");
+			return;
+		}
         this.socketIOService.leaveRoom('node' + jumpingPlayer.currentNodeName, socket);
         socket.io.to('node' + jumpingPlayer.currentNodeName).emit('shipLeftNode', { playerId: jumpingPlayer.id });
         delete this.nodeService.nodes[jumpingPlayer.currentNodeName].ships[jumpingPlayer.id];
         jumpingPlayer.currentNodeName = node.name;
+        jumpingPlayer.getActiveShip().currentStats.energy -= destinationNodeJumpRange;
+		jumpingPlayer.getActiveShip().currentStats.energy < 0 ? jumpingPlayer.getActiveShip().currentStats.energy = 0 : null;
         socket.io.to('node' + jumpingPlayer.currentNodeName).emit('shipEnteredNode', { ship: jumpingPlayer.ships[jumpingPlayer.activeShipIndex], playerId: jumpingPlayer.id });
         socket.emit('playerJumpedToNode', { player: jumpingPlayer, node: this.nodeService.nodes[jumpingPlayer.currentNodeName] });
         this.nodeService.nodes[jumpingPlayer.currentNodeName].ships[jumpingPlayer.id] = jumpingPlayer.ships[jumpingPlayer.activeShipIndex];
